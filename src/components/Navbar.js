@@ -58,7 +58,7 @@ function Navbar() {
       <div className="items-center mr-4 text-sm sm:text-lg lg:text-xl">
         {username ? (
           <div className="flex flex-row space-x-5">
-            <Link to={"/newpost"} className=" hover:text-white">
+            <Link to={"/create"} className=" hover:text-white">
               <button className="text-xl">Create New Post</button>
             </Link>
             <button

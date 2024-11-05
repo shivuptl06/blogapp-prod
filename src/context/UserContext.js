@@ -20,9 +20,11 @@ function UserContextProvider({ children }) {
         if (response.data.username) {
           setUsername(response.data.username);
           setIsAuthenticated(true); // User is logged in
+        //   navigate("/")
 
         } else {
           setIsAuthenticated(false); // User is not logged in
+          navigate("/login");
         }
       } catch (error) {
         console.error("Error checking authentication:", error);
@@ -31,13 +33,13 @@ function UserContextProvider({ children }) {
     };
 
     checkAuth();
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (!isAuthenticated) {
         //alert("Login To Continue")
       //toast.error("Please log in to access this website", { autoClose: 400 });
-      navigate("/login"); // Redirect to login if not authenticated
+      //navigate("/login"); // Redirect to login if not authenticated
     }
   }, [isAuthenticated, navigate]);
 

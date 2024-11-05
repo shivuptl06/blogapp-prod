@@ -17,7 +17,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AllData from "./pages/AllData";
 import { UserContext, UserContextProvider } from "./context/UserContext";
-import NewPost from "./pages/NewPost";
+import CreatePost from "./pages/CreatePost";
 
 function App() {
   return (
@@ -30,7 +30,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Signup />} />
           <Route path="/all-data" element={<AllData />} />
-          <Route path="/newpost" element={<NewPost />} />
+          <Route path="/create" element={<CreatePost />} />
         </Routes>
         <Footer />
       </UserContextProvider>

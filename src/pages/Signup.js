@@ -5,6 +5,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 function SignUp() {
   const [isAnimated, setIsAnimated] = useState(false);
@@ -13,6 +14,7 @@ function SignUp() {
   const [email, setEmail] = useState("");
   const [isSignedIn, setIsSignedIn] = useState(null);
   const navigate = useNavigate();
+  const {isAuthenticated, setIsAuthenticated} = {UserContext}
 
   useEffect(() => {
     // Trigger animation after the component mounts
@@ -20,12 +22,14 @@ function SignUp() {
   }, []);
 
   function signInSuccessful() {
+    setIsAuthenticated(true);
     toast.success("User Registeration Successful", { autoClose: 500 });
-    navigate("/");
+    // navigate("/");
     return "User Registeration Succesful";
   }
   function signInFailed() {
     if (isSignedIn === false) {
+      setIsAuthenticated(false);
       toast.error("User Registeration Failed", { autoClose: 500 });
       return "User Registeration Failed";
     }
@@ -42,6 +46,7 @@ function SignUp() {
       });
       console.log(response.data.message); // "User Registration Successful" or "Email already exists" / "Username already exists"
       setIsSignedIn(true);
+      navigate("/");
     } catch (error) {
       setIsSignedIn(false);
       console.error("Error:", error.message); // Logs specific error message
