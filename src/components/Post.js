@@ -1,7 +1,7 @@
 import React from "react";
 
-function Post({ post }) {
-  const { content, cover, createdAt, summary, title, author } = post;
+function Post({ post, onEdit, onDelete }) {
+  const { content, cover, createdAt, summary, title, author, _id } = post;
 
   // Check if createdAt is valid
   const formattedDate = createdAt
@@ -26,7 +26,9 @@ function Post({ post }) {
       )}
 
       {/* Title */}
-      <h2 className="post-title text-2xl font-bold mb-2 text-gray-800">{title}</h2>
+      <h2 className="post-title text-2xl font-bold mb-2 text-gray-800">
+        {title}
+      </h2>
 
       {/* Created At */}
       <p className="post-date text-sm text-gray-500 mb-2">{formattedDate}</p>
@@ -44,6 +46,31 @@ function Post({ post }) {
       {/* Content */}
       <div className="post-content text-gray-800">
         {content && <div dangerouslySetInnerHTML={{ __html: content }} />}
+      </div>
+
+      {/* Action buttons */}
+      <div className="post-actions mt-4">
+        {/* Edit Button */}
+        <button
+          onClick={() => {
+            console.log("Edit Clicked");
+            onEdit(_id);
+          }}
+          className="edit-btn text-blue-500 hover:text-blue-700 mr-4"
+        >
+          Edit
+        </button>
+
+        {/* Delete Button */}
+        <button
+          onClick={() => {
+            console.log("Delete Clicked");
+            onDelete(_id,author);
+          }}
+          className="delete-btn text-red-500 hover:text-red-700"
+        >
+          Delete
+        </button>
       </div>
     </div>
   );

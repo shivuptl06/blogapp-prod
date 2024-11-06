@@ -5,6 +5,7 @@ import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { UserContext } from "../context/UserContext";
+// import defaultImage from "../../api/default/defaultImage.jpg";
 
 function CreatePost() {
   const [title, setTitle] = useState();
@@ -14,10 +15,33 @@ function CreatePost() {
   const [author, setAuthor] = useState();
   const navigate = useNavigate();
 
+  const [error, setError] = useState("");
+
   const { username, setUsername } = useContext(UserContext);
+
+  function handleContentChange(value) {
+    setContent(value);
+    if (value === "" || value === "<p><br></p>") {
+      setError("Content is required.");
+    } else {
+      setError("");
+    }
+  }
 
   async function createNewPost(e) {
     e.preventDefault();
+
+    // FIrst CHeck if content is empty
+    // Check if content is empty
+    if (content === "" || content === "<p><br></p>") {
+      setError("Content is required.");
+      return;
+    }
+
+    // Process the form if content is not empty
+    console.log("Form submitted with content:", content);
+    // Proceed with form submission (e.g., send to backend)
+
     const data = new FormData();
 
     data.set("title", title);
@@ -32,7 +56,7 @@ function CreatePost() {
     // Here you can call your API to create a new post
     try {
       const response = await axios.post("http://localhost:5000/post", data, {
-        withCredentials:true,
+        withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });
       console.log(response.data);
@@ -52,6 +76,7 @@ function CreatePost() {
       <form className="flex flex-col items-center" onSubmit={createNewPost}>
         <div className="w-full max-w-md space-y-5">
           <input
+            required
             type="text"
             placeholder="Title"
             value={title}
@@ -61,6 +86,7 @@ function CreatePost() {
             className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
           <input
+            required
             type="text"
             placeholder="Summary"
             value={summary}
@@ -71,6 +97,7 @@ function CreatePost() {
           />
           <div className="relative w-full">
             <input
+              required
               type="file"
               onChange={(e) => {
                 setFile(e.target.files[0]);
@@ -81,9 +108,10 @@ function CreatePost() {
           <div className="w-full mb-5">
             <ReactQuill
               value={content}
-              onChange={setContent}
+              onChange={handleContentChange}
               className="h-64 border-gray-300 rounded-lg"
             />
+            {error && <p className="text-red-500">{error}</p>}
           </div>
         </div>
         <button

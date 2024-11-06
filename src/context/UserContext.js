@@ -8,6 +8,7 @@ function UserContextProvider({ children }) {
   const [username, setUsername] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true); // New loading state
+  const [posts, setPosts] = useState();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,15 +30,24 @@ function UserContextProvider({ children }) {
         setLoading(false); // Set loading to false after auth check is complete
       }
     };
-
+    
     checkAuth();
   }, []);
-
+  
   useEffect(() => {
     if (!loading && username === null && !isAuthenticated) {
       navigate("/login");
     }
   }, [loading, username, isAuthenticated, navigate]);
+  
+  
+  useEffect(() => {
+    axios.get("http://localhost:5000/post").then((res) => {
+      console.log(res.data);
+      setPosts(res.data);
+    });
+  }, [posts]);
+
 
   if (loading) {
     return null; // Optionally render a loading spinner or return null while loading
@@ -45,7 +55,7 @@ function UserContextProvider({ children }) {
 
   return (
     <UserContext.Provider
-      value={{ username, setUsername, isAuthenticated, setIsAuthenticated }}
+      value={{ username, setUsername, isAuthenticated, setIsAuthenticated, posts, setPosts }}
     >
       {children}
     </UserContext.Provider>

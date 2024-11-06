@@ -173,6 +173,19 @@ app.get("/post", async (req, res) => {
   res.json(posts);
 });
 
+app.post("/delete", async (req, res) => {
+  //console.log(req);
+  const deletePost = await Post.findById(req.body.id);
+  if (!deletePost) {
+    console.log("Post Not Found 404");
+    return res.status(404).json("Post Not Found");
+  } else {
+    const id = deletePost._id
+    await Post.deleteOne({_id:id});
+    console.log("Post Deleted Successfully");
+  }
+});
+
 // All the extra Code is below this // // // // /////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Catch unhandled promise rejections
