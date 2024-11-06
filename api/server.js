@@ -12,6 +12,7 @@ const cookieParser = require("cookie-parser");
 const multer = require("multer");
 const fs = require("fs");
 const port = 5000; // or any other safe port
+const path = require("path");
 app.use(
   cors({
     origin: "http://localhost:3000", // Replace with your frontend URL
@@ -96,13 +97,13 @@ app.post("/login", async (req, res) => {
 app.get("/profile", async (req, res) => {
   const { token } = req.cookies;
   if (!token) {
-    res.status(401).json("Unauthorized");
+    res.status(401).json("Unauthorized get/profile");
     console.log("No Token Found");
   } else {
     jwt.verify(token, secretKey, {}, (error, info) => {
       if (error) {
         console.log(error);
-        res.status(401).json("Unauthorized");
+        res.status(401).json("Unauthorized get/profile");
       } else {
         //console.log("Token: ", token);
         res.json(info);
@@ -119,38 +120,51 @@ app.post("/logout", async (req, res) => {
 
 // For create-new-post Page
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
-  const file = req.file; // Should be defined if multer processed the file correctly
+  const { token } = req.cookies;
 
-  if (!file) {
-    return res.status(400).json({ error: "File upload failed" });
+  if (!token) {
+    return res.status(401).json("Unauthorized No Token in post:post");
   }
 
-  const { originalname, path } = req.file;
-  const parts = originalname.split(".")[0];
-  const fileExtension = parts[parts.length - 1];
-  const newPath = parts + "." + fileExtension;
-  fs.renameSync(path, newPath);
+  // Verify and decode the JWT token to extract user information
+  jwt.verify(token, secretKey, {}, async (error, info) => {
+    if (error) {
+      console.log(error);
+      return res.status(401).json("Unauthorized error in post:post");
+    }
 
-  //
-  // Here you can save the file path to your database
-  // and return the path to the client
-  //
-  if (userAuthor) {
-    res.json("ok");
-    const { title, summary, content, author } = req.body;
-    const postDoc = await Post.create({
-      title: title,
-      summary: summary,
-      content: content,
-      cover: newPath,
-      author: author,
-    });
-  } else {
-    console.log("USERNAME NOT FOUND");
-    //res.json("Username not founddd");
-  }
+    const file = req.file; // Check if multer processed the file correctly
+    if (!file) {
+      return res.status(400).json({ error: "File upload failed" });
+    }
 
-  // res.json(req.file);
+    // Process the uploaded file
+    const { originalname, path: tempPath } = req.file;
+    const parts = originalname.split(".");
+    const startName = parts.slice(0, -1).join("."); // Filename without extension
+    const fileExtension = parts[parts.length - 1]; // Get the file extension
+    const newPath = path.join("uploads", `${startName}.${fileExtension}`);
+    fs.renameSync(tempPath, newPath); // Rename file with correct extension
+
+    // Get post data from request body
+    const { title, summary, content } = req.body;
+
+    try {
+      // Create a new post with the decoded username as the author
+      const postDoc = await Post.create({
+        title: title,
+        summary: summary,
+        content: content,
+        cover: newPath,
+        author: info.username, // Set the author as the username from token
+      });
+
+      res.status(200).json(postDoc); // Send back the created post document as response
+    } catch (err) {
+      console.error("Error creating post:", err);
+      res.status(500).json({ message: "Error creating post" });
+    }
+  });
 });
 
 app.get("/post", async (req, res) => {

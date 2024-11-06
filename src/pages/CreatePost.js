@@ -14,7 +14,7 @@ function CreatePost() {
   const [author, setAuthor] = useState();
   const navigate = useNavigate();
 
-  const {username, setUsername} = useContext(UserContext);
+  const { username, setUsername } = useContext(UserContext);
 
   async function createNewPost(e) {
     e.preventDefault();
@@ -23,7 +23,6 @@ function CreatePost() {
     data.set("title", title);
     data.set("summary", summary);
     data.set("content", content);
-    data.set("author",username);
     if (file) {
       data.append("file", file); // Appending file to FormData
     } else {
@@ -33,11 +32,12 @@ function CreatePost() {
     // Here you can call your API to create a new post
     try {
       const response = await axios.post("http://localhost:5000/post", data, {
+        withCredentials:true,
         headers: { "Content-Type": "multipart/form-data" },
       });
       console.log(response.data);
       // You can redirect to a new page or display a success message here
-      if (response.data === "ok") {
+      if (response.status === 200) {
         toast.success("Post Created Successfully", { autoClose: 400 });
         navigate("/");
       }

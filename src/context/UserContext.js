@@ -1,17 +1,16 @@
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import axios from "axios"; // Make sure you have axios imported
+import axios from "axios";
 
 const UserContext = createContext({});
 
 function UserContextProvider({ children }) {
   const [username, setUsername] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true); // New loading state
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if the user is authenticated on initial load
     const checkAuth = async () => {
       try {
         const response = await axios.get("http://localhost:5000/profile", {
@@ -20,28 +19,29 @@ function UserContextProvider({ children }) {
         if (response.data.username) {
           setUsername(response.data.username);
           setIsAuthenticated(true); // User is logged in
-        //   navigate("/")
-
-        } else if (username===null) {
+        } else {
           setIsAuthenticated(false); // User is not logged in
-          navigate("/login");
         }
       } catch (error) {
         console.error("Error checking authentication:", error);
-        setIsAuthenticated(false); // Assume not authenticated if there's an error
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false); // Set loading to false after auth check is complete
       }
     };
 
     checkAuth();
-  }, [isAuthenticated]);
+  }, []);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-        //alert("Login To Continue")
-      //toast.error("Please log in to access this website", { autoClose: 400 });
-      //navigate("/login"); // Redirect to login if not authenticated
+    if (!loading && username === null && !isAuthenticated) {
+      navigate("/login");
     }
-  }, [isAuthenticated, navigate]);
+  }, [loading, username, isAuthenticated, navigate]);
+
+  if (loading) {
+    return null; // Optionally render a loading spinner or return null while loading
+  }
 
   return (
     <UserContext.Provider
