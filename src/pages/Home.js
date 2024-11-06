@@ -29,7 +29,7 @@ function Home() {
 
   // If the user is not logged in, redirect to the login page
   if (!username) {
-    return <Navigate to={"/login"} />;
+    //return <Navigate to={"/login"} />;
   } else {
     return (
       // Render the home content if the user is logged in

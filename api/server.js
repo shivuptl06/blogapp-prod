@@ -97,13 +97,15 @@ app.get("/profile", async (req, res) => {
   const { token } = req.cookies;
   if (!token) {
     res.status(401).json("Unauthorized");
+    console.log("No Token Found");
   } else {
     jwt.verify(token, secretKey, {}, (error, info) => {
       if (error) {
         console.log(error);
         res.status(401).json("Unauthorized");
       } else {
-        res.json("OK");
+        //console.log("Token: ", token);
+        res.json(info);
       }
     });
   }
@@ -124,7 +126,7 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   }
 
   const { originalname, path } = req.file;
-  const parts = originalname.split(".");
+  const parts = originalname.split(".")[0];
   const fileExtension = parts[parts.length - 1];
   const newPath = parts + "." + fileExtension;
   fs.renameSync(path, newPath);
