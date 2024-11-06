@@ -18,6 +18,17 @@ function Auth() {
     setIsAnimated(true);
   }, []);
 
+//   useEffect(()=>{
+//     const response = axios.get('http://localhost:5000/profile',async ()=>{
+// if (response.data === "OK"){
+//   navigate("/")
+// }
+// else{
+//   navigate("/login")
+// }
+//     })
+//   })
+
   async function login(e) {
     e.preventDefault();
     try {

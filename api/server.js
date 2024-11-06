@@ -99,7 +99,7 @@ app.get("/profile", async (req, res) => {
         console.log(error);
         res.status(401).json("Unauthorized");
       } else {
-        res.json(info);
+        res.json("OK");
       }
     });
   }
@@ -137,8 +137,13 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
     cover: newPath,
   });
 
-  res.json('ok');
+  res.json("ok");
   // res.json(req.file);
+});
+
+app.get("/post", async (req, res) => {
+  const posts = await Post.find();
+  res.json(posts);
 });
 
 // All the extra Code is below this // // // // /////////////////////
