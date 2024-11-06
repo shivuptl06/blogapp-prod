@@ -7,9 +7,7 @@ import Post from "../components/Post";
 function Home() {
   const { username } = useContext(UserContext);
   const navigate = useNavigate();
-  const [posts,setPosts] = useState();
-
-  
+  const [posts, setPosts] = useState();
 
   //   useEffect(()=>{
   //     if (username){
@@ -33,14 +31,13 @@ function Home() {
   } else {
     return (
       // Render the home content if the user is logged in
-   <>
-   {/* {posts.length>0?
-   posts.map((postEl)=>{
-    return <Post post={postEl}/>
-   })
-   :"No Post To Display"} */}
-   </>
-    )
+      <>
+        {posts &&
+          posts.map((post) => {
+            return <Post key={post._id} post={post} />;
+          })}
+      </>
+    );
   }
 }
 
