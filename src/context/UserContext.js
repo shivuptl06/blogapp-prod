@@ -20,7 +20,7 @@ function UserContextProvider({ children }) {
         if (response.data.username) {
           setUsername(response.data.username);
           setIsAuthenticated(true); // User is logged in
-          navigate("/")
+        //   navigate("/")
 
         } else if (username===null) {
           setIsAuthenticated(false); // User is not logged in
