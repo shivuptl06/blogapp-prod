@@ -1,16 +1,20 @@
 import axios from "axios";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { UserContext } from "../context/UserContext";
 
 function CreatePost() {
   const [title, setTitle] = useState();
   const [summary, setSummary] = useState();
   const [content, setContent] = useState();
   const [file, setFile] = useState("");
+  const [author, setAuthor] = useState();
   const navigate = useNavigate();
+
+  const {username, setUsername} = useContext(UserContext);
 
   async function createNewPost(e) {
     e.preventDefault();
@@ -19,6 +23,7 @@ function CreatePost() {
     data.set("title", title);
     data.set("summary", summary);
     data.set("content", content);
+    data.set("author",username);
     if (file) {
       data.append("file", file); // Appending file to FormData
     } else {

@@ -29,6 +29,8 @@ mongoose.connect(
   "mongodb+srv://Shivam:Shivam@cluster0.fb778.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 );
 
+let userAuthor;
+
 // For signup page
 app.post("/register", async (req, res) => {
   const { email, username, password } = req.body;
@@ -73,8 +75,10 @@ app.post("/login", async (req, res) => {
         jwt.sign({ username, id: user.id }, secretKey, {}, (error, token) => {
           if (error) {
             console.log(error);
+            userAuthor = null;
             res.status(500).json({ message: "Internal Server Error" });
           } else {
+            userAuthor = username;
             res.cookie("token", token).json("OK");
           }
         });
@@ -129,15 +133,21 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   // Here you can save the file path to your database
   // and return the path to the client
   //
-  const { title, summary, content } = req.body;
-  const postDoc = await Post.create({
-    title: title,
-    summary: summary,
-    content: content,
-    cover: newPath,
-  });
+  if (userAuthor) {
+    res.json("ok");
+    const { title, summary, content, author } = req.body;
+    const postDoc = await Post.create({
+      title: title,
+      summary: summary,
+      content: content,
+      cover: newPath,
+      author: author,
+    });
+  } else {
+    console.log("USERNAME NOT FOUND");
+    //res.json("Username not founddd");
+  }
 
-  res.json("ok");
   // res.json(req.file);
 });
 

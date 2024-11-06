@@ -9,6 +9,7 @@ const PostSchema = new Schema(
     content: { type: String, required: true },
     summary: { type: String, required: true },
     cover: { type: String },
+    author: { type: String, required: true },
   },
   {
     timestamps: true,

@@ -8,7 +8,7 @@ import {
 import "./App.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Blog from "./components/Blog";
+import Post from "./components/Post";
 import Home from "./pages/Home";
 // eslint-disable-next-line
 import Login from "./pages/Login";
@@ -26,7 +26,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/blog" element={<Blog />} />
+          <Route path="/post" element={<Post />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Signup />} />
           <Route path="/all-data" element={<AllData />} />
