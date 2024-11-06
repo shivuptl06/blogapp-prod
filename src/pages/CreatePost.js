@@ -1,44 +1,76 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useState, useRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
 function CreatePost() {
-  const [file, setFile] = useState(null); // State to store the selected file
-  const [fileName, setFileName] = useState(""); // State to store the name of the selected file
+  const [title, setTitle] = useState();
+  const [summary, setSummary] = useState();
+  const [content, setContent] = useState();
+  const [file, setFile] = useState("");
 
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setFileName(selectedFile.name); // Set the name of the selected file
+  async function createNewPost(e) {
+    e.preventDefault();
+    const data = new FormData();
+
+    data.set("title", title);
+    data.set("summary", summary);
+    data.set("content", content);
+    if (file) {
+      data.append("file", file); // Appending file to FormData
+    } else {
+      console.error("No file selected.");
     }
-  };
+
+    // Here you can call your API to create a new post
+    try {
+      const response = await axios.post("http://localhost:5000/post", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error creating post:", error);
+    }
+  }
 
   return (
     <div className="new-post text-center mt-10 space-y-8 px-4 sm:px-0">
       <h2 className="text-5xl mb-5 font-semibold">Create New Post</h2>
-      <form className="flex flex-col items-center">
+      <form className="flex flex-col items-center" onSubmit={createNewPost}>
         <div className="w-full max-w-md space-y-5">
           <input
             type="text"
             placeholder="Title"
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value);
+            }}
             className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
           <input
             type="text"
             placeholder="Summary"
+            value={summary}
+            onChange={(e) => {
+              setSummary(e.target.value);
+            }}
             className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
           <div className="relative w-full">
             <input
-              id="file-input"
               type="file"
-              onChange={handleFileChange}
+              onChange={(e) => {
+                setFile(e.target.files[0]);
+              }}
               className="border border-gray-300 rounded-lg p-3 w-full transition hover:bg-gray-100"
             />
           </div>
           <div className="w-full mb-5">
-            <ReactQuill className="h-64 border-gray-300 rounded-lg" />
+            <ReactQuill
+              value={content}
+              onChange={setContent}
+              className="h-64 border-gray-300 rounded-lg"
+            />
           </div>
         </div>
         <button

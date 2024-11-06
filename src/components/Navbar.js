@@ -63,6 +63,11 @@ function Navbar() {
       });
   }
 
+  // Function to close the dropdown when a menu item is clicked
+  const handleMenuItemClick = () => {
+    setIsDropdownOpen(false); // Close the dropdown
+  };
+
   return (
     <div className="flex justify-between items-center p-4 bg-gray-600">
       <Link
@@ -84,11 +89,18 @@ function Navbar() {
             {/* Dropdown menu */}
             {isDropdownOpen && (
               <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg">
-                <Link to="/create" className="block px-4 py-2 hover:bg-gray-200">
+                <Link
+                  to="/create"
+                  className="block px-4 py-2 hover:bg-gray-200"
+                  onClick={handleMenuItemClick} // Close the dropdown when clicked
+                >
                   Create New Post
                 </Link>
                 <button
-                  onClick={logOut}
+                  onClick={() => {
+                    logOut(); 
+                    handleMenuItemClick(); // Close dropdown on logout
+                  }}
                   className="block w-full text-left px-4 py-2 hover:bg-gray-200"
                 >
                   Logout

@@ -3,11 +3,14 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const app = express();
 const User = require("./models/user");
+const Post = require("./models/post");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const jwt = require("jsonwebtoken");
 const secretKey = "1234567890987654321";
 const cookieParser = require("cookie-parser");
+const multer = require("multer");
+const fs = require("fs");
 const port = 5000; // or any other safe port
 app.use(
   cors({
@@ -15,20 +18,18 @@ app.use(
     credentials: true, // Allow cookies to be sent with requests
   })
 );
-//app.use(cors());
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-// app.use();
+
+const uploadMiddleware = multer({ dest: "uploads/" });
 
 mongoose.connect(
   "mongodb+srv://Shivam:Shivam@cluster0.fb778.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 );
 
-// Connection String
-// mongodb+srv://Shivam:Shivam@cluster0.fb778.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-
+// For signup page
 app.post("/register", async (req, res) => {
   const { email, username, password } = req.body;
   try {
@@ -51,6 +52,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
+// For Login Page
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -67,8 +69,6 @@ app.post("/login", async (req, res) => {
       const isMatch = await bcrypt.compare(password, user.password); // bcrypt compares the plain password with the hashed password in DB
 
       if (isMatch) {
-        //res.status(200).json("User Login Successful");
-
         // JWT
         jwt.sign({ username, id: user.id }, secretKey, {}, (error, token) => {
           if (error) {
@@ -88,8 +88,8 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// For profile Page
 app.get("/profile", async (req, res) => {
-  //console.log(req.cookies); // Check what cookies are available
   const { token } = req.cookies;
   if (!token) {
     res.status(401).json("Unauthorized");
@@ -103,18 +103,46 @@ app.get("/profile", async (req, res) => {
       }
     });
   }
-  // if (req.cookies.token) {
-  //   res.json({ message: "Cookie exists", cookie: req.cookies.token });
-  // } else {
-  //   res.json({ message: "No cookie found" });
-  // }
 });
 
+// For logout Page
 app.post("/logout", async (req, res) => {
   res.cookie("token", "");
   res.status(200).json({ message: "Logged out successfully" });
 });
 
+// For create-new-post Page
+app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
+  const file = req.file; // Should be defined if multer processed the file correctly
+
+  if (!file) {
+    return res.status(400).json({ error: "File upload failed" });
+  }
+
+  const { originalname, path } = req.file;
+  const parts = originalname.split(".");
+  const fileExtension = parts[parts.length - 1];
+  const newPath = parts + "." + fileExtension;
+  fs.renameSync(path, newPath);
+
+  //
+  // Here you can save the file path to your database
+  // and return the path to the client
+  //
+  const { title, summary, content } = req.body;
+  const postDoc = await Post.create({
+    title: title,
+    summary: summary,
+    content: content,
+    cover: newPath,
+  });
+
+  res.json(postDoc);
+  // res.json(req.file);
+});
+
+// All the extra Code is below this // // // // /////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Catch unhandled promise rejections
 process.on("unhandledRejection", (reason, promise) => {
   console.log("Unhandled Rejection:", reason);
