@@ -2,12 +2,15 @@ import axios from "axios";
 import React, { useState, useRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function CreatePost() {
   const [title, setTitle] = useState();
   const [summary, setSummary] = useState();
   const [content, setContent] = useState();
   const [file, setFile] = useState("");
+  const navigate = useNavigate();
 
   async function createNewPost(e) {
     e.preventDefault();
@@ -28,6 +31,11 @@ function CreatePost() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       console.log(response.data);
+      // You can redirect to a new page or display a success message here
+      if (response.data === "ok") {
+        toast.success("Post Created Successfully", { autoClose: 400 });
+        navigate("/");
+      }
     } catch (error) {
       console.error("Error creating post:", error);
     }
