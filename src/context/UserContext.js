@@ -7,12 +7,21 @@ const UserContext = createContext({});
 
 function UserContextProvider({ children }) {
   const [username, setUsername] = useState(null);
+  const [password, setPassword] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true); // New loading state
-  const [posts, setPosts] = useState();
+  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Profile Details
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [profilePic, setProfilePic] = useState();
+  const [followers, setFollowers] = useState(["John", "Micheal"]); // Now an array
+  const [following, setFollowing] = useState(["Cristine", "Angelina"]); // Now an array
+
+  // Check authentication status
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -21,9 +30,11 @@ function UserContextProvider({ children }) {
         });
         if (response.data.username) {
           setUsername(response.data.username);
-          setIsAuthenticated(true); // User is logged in
+          setIsAuthenticated(true);
         } else {
-          setIsAuthenticated(false); // User is not logged in
+          setIsAuthenticated(false);
+          // setUsername(null);
+          // setProfilePic(null);
         }
       } catch (error) {
         console.error("Error checking authentication:", error);
@@ -36,25 +47,25 @@ function UserContextProvider({ children }) {
     checkAuth();
   }, []);
 
+  // Handle redirection after auth check
   useEffect(() => {
-    if (!loading && username === null && !isAuthenticated) {
-      navigate("/login");
+    if (loading) return; // Wait until loading is complete
+    if (username === null) {
       setIsAuthenticated(false);
-    } 
-    else if (location.pathname === "/login" || location.pathname === "/signup") {
+    } else if (
+      (location.pathname === "/login" && username !== null) ||
+      (location.pathname === "/signup" && username !== null)
+    ) {
       navigate("/");
-      setIsAuthenticated(true);
     }
-    else{
-      setIsAuthenticated(false);
-    }
-  }, [loading, username, isAuthenticated, navigate]);
+  }, [loading, username, navigate, location.pathname]);
 
+  // Fetch posts
   const fetchPosts = async () => {
     try {
       const response = await axios.get("http://localhost:5000/post");
-      console.log("Fetched posts from backend:", response.data); // Debugging line
-      setPosts(response.data); // Update posts state with the fetched data
+      console.log("Fetched posts from backend:", response.data);
+      setPosts(response.data);
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
@@ -62,10 +73,11 @@ function UserContextProvider({ children }) {
 
   useEffect(() => {
     fetchPosts(); // Fetch posts initially
-  }, []);
+  }, [username]);
 
+  // Optionally render a loading spinner or return null while loading
   if (loading) {
-    return null; // Optionally render a loading spinner or return null while loading
+    return null;
   }
 
   return (
@@ -73,11 +85,23 @@ function UserContextProvider({ children }) {
       value={{
         username,
         setUsername,
+        password,
+        setPassword,
         isAuthenticated,
         setIsAuthenticated,
         posts,
         setPosts,
         fetchPosts,
+        name,
+        setName,
+        email,
+        setEmail,
+        profilePic,
+        setProfilePic,
+        followers,
+        setFollowers,
+        following,
+        setFollowing,
       }}
     >
       {children}

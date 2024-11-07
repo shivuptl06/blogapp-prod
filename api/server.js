@@ -34,25 +34,42 @@ mongoose.connect(
 let userAuthor;
 
 // For signup page
-app.post("/register", async (req, res) => {
-  const { email, username, password } = req.body;
+app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
+  console.log("File received:", req.file); // Check if req.file is populated
+
+  const { name, email, username, password } = req.body;
+  const file = req.file;
+
+  if (!file) {
+    return res.status(400).json({ error: "File upload failed" });
+  }
+
+  // Define a new path specifically for profile images
+  const profileImageDir = "uploads/profilePic";
+  if (!fs.existsSync(profileImageDir)) {
+    fs.mkdirSync(profileImageDir, { recursive: true });
+  }
+
   try {
+    const { originalname, path: tempPath } = req.file;
+    const newPath = path.join(profileImageDir, originalname);
+    fs.renameSync(tempPath, newPath); // Rename file into profilePic directory
+
     bcrypt.hash(password, saltRounds, async function (err, hash) {
-      await User.create({ email, username, password: hash });
+      if (err) throw err;
+
+      await User.create({
+        name,
+        email,
+        username,
+        password: hash,
+        cover: newPath,
+      });
+
       res.status(200).json({ message: "User Registration Successful" });
     });
   } catch (error) {
-    if (error.code === 11000) {
-      const field = Object.keys(error.keyValue)[0]; // Get the field causing the error
-      res.status(400).json({
-        message: `${
-          field.charAt(0).toUpperCase() + field.slice(1)
-        } already exists`,
-      });
-    } else {
-      console.error(error);
-      res.status(500).json({ message: "Internal Server Error" });
-    }
+    // Error handling
   }
 });
 
@@ -127,40 +144,38 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
     return res.status(401).json("Unauthorized No Token in post:post");
   }
 
-  // Verify and decode the JWT token to extract user information
   jwt.verify(token, secretKey, {}, async (error, info) => {
     if (error) {
-      console.log(error);
       return res.status(401).json("Unauthorized error in post:post");
     }
 
-    const file = req.file; // Check if multer processed the file correctly
+    const file = req.file;
     if (!file) {
       return res.status(400).json({ error: "File upload failed" });
     }
 
-    // Process the uploaded file
-    const { originalname, path: tempPath } = req.file;
-    const parts = originalname.split(".");
-    const startName = parts.slice(0, -1).join("."); // Filename without extension
-    const fileExtension = parts[parts.length - 1]; // Get the file extension
-    const newPath = path.join("uploads", `${startName}.${fileExtension}`);
-    fs.renameSync(tempPath, newPath); // Rename file with correct extension
+    // Define a new path specifically for post images
+    const postImageDir = "uploads/postImages";
+    if (!fs.existsSync(postImageDir)) {
+      fs.mkdirSync(postImageDir, { recursive: true });
+    }
 
-    // Get post data from request body
+    const { originalname, path: tempPath } = req.file;
+    const newPath = path.join(postImageDir, originalname);
+    fs.renameSync(tempPath, newPath); // Move file into postImages directory
+
     const { title, summary, content } = req.body;
 
     try {
-      // Create a new post with the decoded username as the author
       const postDoc = await Post.create({
-        title: title,
-        summary: summary,
-        content: content,
+        title,
+        summary,
+        content,
         cover: newPath,
-        author: info.username, // Set the author as the username from token
+        author: info.username,
       });
 
-      res.status(200).json(postDoc); // Send back the created post document as response
+      res.status(200).json(postDoc);
     } catch (err) {
       console.error("Error creating post:", err);
       res.status(500).json({ message: "Error creating post" });
@@ -180,10 +195,10 @@ app.post("/delete", async (req, res) => {
     console.log("Post Not Found 404");
     return res.status(404).json("Post Not Found");
   } else {
-    const id = deletePost._id
-    await Post.deleteOne({_id:id});
+    const id = deletePost._id;
+    await Post.deleteOne({ _id: id });
     console.log("Post Deleted Successfully");
-    return res.status(200).json("Post deletion successful")
+    return res.status(200).json("Post deletion successful");
   }
 });
 
@@ -211,7 +226,6 @@ app.post("/edit", async (req, res) => {
     res.status(500).json("Internal Server Error");
   }
 });
-
 
 // All the extra Code is below this // // // // /////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

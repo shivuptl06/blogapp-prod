@@ -12,22 +12,12 @@ function Auth() {
   const [username, setLocalUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isAnimated, setIsAnimated] = useState(false);
+  const [loginError, setLoginError] = useState(""); // New state for login error message
   const navigate = useNavigate();
 
   useEffect(() => {
     setIsAnimated(true);
   }, []);
-
-//   useEffect(()=>{
-//     const response = axios.get('http://localhost:5000/profile',async ()=>{
-// if (response.data === "OK"){
-//   navigate("/")
-// }
-// else{
-//   navigate("/login")
-// }
-//     })
-//   })
 
   async function login(e) {
     e.preventDefault();
@@ -47,6 +37,9 @@ function Auth() {
       navigate("/");
     } catch (error) {
       console.error("Error logging in:", error);
+      setLoginError(
+        "User Login Failed. Please check your username and password."
+      ); // Set the error message
       toast.error("User Login Failed", { autoClose: 500 });
     }
   }
@@ -62,6 +55,9 @@ function Auth() {
         <h1 className="text-3xl font-bold text-center mb-6">Login</h1>
 
         <form className="flex flex-col space-y-4" onSubmit={login}>
+          {loginError && (
+            <div className="text-red-500 text-center mb-4">{loginError}</div>
+          )}
           <div>
             <input
               type="text"

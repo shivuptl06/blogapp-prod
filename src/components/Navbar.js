@@ -37,6 +37,7 @@ function Navbar() {
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
+        navigate("/login");
       }
     };
 
@@ -98,37 +99,39 @@ function Navbar() {
           My Blog
         </Link>
 
-        {/* Centered Search Bar visible on medium and larger screens */}
-        <div className="hidden sm:flex flex-1 justify-center">
-          <form
-            onSubmit={handleSearch}
-            className="flex items-center w-full max-w-md mx-auto"
-          >
-            <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden w-full">
-              <select
-                value={searchType}
-                onChange={(e) => setSearchType(e.target.value)}
-                className="p-2 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 h-full"
-              >
-                <option value="Blogs">Blogs</option>
-                <option value="Users">Users</option>
-              </select>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={`Search ${searchType.toLowerCase()}...`}
-                className="p-2 w-full bg-gray-100 focus:outline-none"
-              />
-              <button
-                type="submit"
-                className="p-2 bg-blue-500 text-white hover:bg-blue-600"
-              >
-                Search
-              </button>
-            </div>
-          </form>
-        </div>
+        {/* Conditionally render the search bar based on username */}
+        {username && (
+          <div className="hidden sm:flex flex-1 justify-center">
+            <form
+              onSubmit={handleSearch}
+              className="flex items-center w-full max-w-md mx-auto"
+            >
+              <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden w-full">
+                <select
+                  value={searchType}
+                  onChange={(e) => setSearchType(e.target.value)}
+                  className="p-2 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 h-full"
+                >
+                  <option value="Blogs">Blogs</option>
+                  <option value="Users">Users</option>
+                </select>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={`Search ${searchType.toLowerCase()}...`}
+                  className="p-2 w-full bg-gray-100 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="p-2 bg-blue-500 text-white hover:bg-blue-600"
+                >
+                  Search
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
 
         {/* Profile and Post Icons */}
         <div className="flex items-center space-x-4 text-sm sm:text-lg lg:text-xl">
@@ -190,32 +193,34 @@ function Navbar() {
       </div>
 
       {/* Search Bar for small screens (below navbar) */}
-      <div className="flex sm:hidden p-4 bg-gray-600 ">
-        <form onSubmit={handleSearch} className="w-full">
-          <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-            <select
-              value={searchType}
-              onChange={(e) => setSearchType(e.target.value)}
-              className="p-2 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 h-full"
-            >
-              <option value="Blogs">Blogs</option>
-              <option value="Users">Users</option>
-            </select>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={`Search ${searchType.toLowerCase()}...`}
-              className="p-2 w-full bg-gray-100 focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="p-2 bg-blue-500 text-white hover:bg-blue-600"
-            >
-              Search
-            </button>
-          </div>
-        </form>
+      <div className="flex sm:hidden p-4 bg-gray-600">
+        {username && (
+          <form onSubmit={handleSearch} className="w-full">
+            <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+              <select
+                value={searchType}
+                onChange={(e) => setSearchType(e.target.value)}
+                className="p-2 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 h-full"
+              >
+                <option value="Blogs">Blogs</option>
+                <option value="Users">Users</option>
+              </select>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={`Search ${searchType.toLowerCase()}...`}
+                className="p-2 w-full bg-gray-100 focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="p-2 bg-blue-500 text-white hover:bg-blue-600"
+              >
+                Search
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </>
   );
