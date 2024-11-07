@@ -30,24 +30,29 @@ function UserContextProvider({ children }) {
         setLoading(false); // Set loading to false after auth check is complete
       }
     };
-    
+
     checkAuth();
   }, []);
-  
+
   useEffect(() => {
     if (!loading && username === null && !isAuthenticated) {
       navigate("/login");
     }
   }, [loading, username, isAuthenticated, navigate]);
-  
-  
-  useEffect(() => {
-    axios.get("http://localhost:5000/post").then((res) => {
-      console.log(res.data);
-      setPosts(res.data);
-    });
-  }, [posts]);
 
+  const fetchPosts = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/post");
+      console.log("Fetched posts from backend:", response.data); // Debugging line
+      setPosts(response.data); // Update posts state with the fetched data
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts(); // Fetch posts initially
+  }, []);
 
   if (loading) {
     return null; // Optionally render a loading spinner or return null while loading
@@ -55,7 +60,15 @@ function UserContextProvider({ children }) {
 
   return (
     <UserContext.Provider
-      value={{ username, setUsername, isAuthenticated, setIsAuthenticated, posts, setPosts }}
+      value={{
+        username,
+        setUsername,
+        isAuthenticated,
+        setIsAuthenticated,
+        posts,
+        setPosts,
+        fetchPosts,
+      }}
     >
       {children}
     </UserContext.Provider>

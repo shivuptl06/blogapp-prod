@@ -17,7 +17,7 @@ function CreatePost() {
 
   const [error, setError] = useState("");
 
-  const { username, setUsername } = useContext(UserContext);
+  const { username, setUsername, fetchPosts } = useContext(UserContext);
 
   function handleContentChange(value) {
     setContent(value);
@@ -63,6 +63,7 @@ function CreatePost() {
       // You can redirect to a new page or display a success message here
       if (response.status === 200) {
         toast.success("Post Created Successfully", { autoClose: 400 });
+        fetchPosts();
         navigate("/");
       }
     } catch (error) {

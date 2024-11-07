@@ -183,8 +183,35 @@ app.post("/delete", async (req, res) => {
     const id = deletePost._id
     await Post.deleteOne({_id:id});
     console.log("Post Deleted Successfully");
+    return res.status(200).json("Post deletion successful")
   }
 });
+
+app.post("/edit", async (req, res) => {
+  const { id, title, summary, content } = req.body;
+
+  try {
+    const findPost = await Post.findById(id); // Ensure to use `findById`
+
+    if (!findPost) {
+      console.log("Post Not Found 404");
+      return res.status(404).json("Post Not Found");
+    }
+
+    // Update the post
+    findPost.title = title;
+    findPost.summary = summary;
+    findPost.content = content;
+
+    await findPost.save(); // Save the updated document
+
+    res.status(200).json(findPost); // Return the updated post document
+  } catch (error) {
+    console.error("Error updating post:", error);
+    res.status(500).json("Internal Server Error");
+  }
+});
+
 
 // All the extra Code is below this // // // // /////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
