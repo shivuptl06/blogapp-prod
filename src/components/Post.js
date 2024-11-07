@@ -57,7 +57,7 @@ function Post({ post, onEdit, onDelete }) {
   };
 
   return (
-    <div className="post bg-white p-4 rounded-lg shadow-md border border-gray-300 mb-6 max-w-2xl w-full mt-10">
+    <div className="post bg-white p-2 rounded-lg shadow-md border border-gray-300 mb-6 max-w-2xl w-full mt-10">
       {cover && !isEditing && (
         <div className="post-cover mb-4">
           <img

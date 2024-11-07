@@ -65,7 +65,7 @@ function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center m-2">
       {posts && posts.length > 0 ? (
         posts.map((post) => (
           <Post
