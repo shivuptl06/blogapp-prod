@@ -18,6 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 import AllData from "./pages/AllData";
 import { UserContext, UserContextProvider } from "./context/UserContext";
 import CreatePost from "./pages/CreatePost";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/register" element={<Signup />} />
           <Route path="/all-data" element={<AllData />} />
           <Route path="/create" element={<CreatePost />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
         <Footer />
       </UserContextProvider>

@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 const UserContext = createContext({});
 
@@ -10,6 +11,7 @@ function UserContextProvider({ children }) {
   const [loading, setLoading] = useState(true); // New loading state
   const [posts, setPosts] = useState();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -37,6 +39,14 @@ function UserContextProvider({ children }) {
   useEffect(() => {
     if (!loading && username === null && !isAuthenticated) {
       navigate("/login");
+      setIsAuthenticated(false);
+    } 
+    else if (location.pathname === "/login" || location.pathname === "/signup") {
+      navigate("/");
+      setIsAuthenticated(true);
+    }
+    else{
+      setIsAuthenticated(false);
     }
   }, [loading, username, isAuthenticated, navigate]);
 
