@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import axios from "axios";
@@ -13,8 +13,18 @@ function Home() {
   const [postToDelete, setPostToDelete] = useState(null);
   const [isAuthorized, setIsAuthorized] = useState(true);
 
+  // Sort posts by 'createdAt' field to show the newest posts first
+  const sortedPosts = posts
+    ? posts
+        .map((post) => ({
+          ...post,
+          createdAt: new Date(post.createdAt), // Ensure createdAt is a Date object
+        }))
+        .sort((a, b) => b.createdAt - a.createdAt) // Sort by createdAt, newest first
+    : [];
+
   // Log posts to verify data
-  console.log("Posts in UserContext:", posts); // Debugging line
+  console.log("Sorted Posts in UserContext:", sortedPosts); // Debugging line
 
   async function onEdit(postId, updatedPost) {
     try {
@@ -66,8 +76,8 @@ function Home() {
 
   return (
     <div className="flex flex-col items-center m-2">
-      {posts && posts.length > 0 ? (
-        posts.map((post) => (
+      {sortedPosts.length > 0 ? (
+        sortedPosts.map((post) => (
           <Post
             key={post._id}
             post={post}

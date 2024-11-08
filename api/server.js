@@ -31,7 +31,6 @@ mongoose.connect(
   "mongodb+srv://Shivam:Shivam@cluster0.fb778.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 );
 
-
 // ! For signup page
 app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
   console.log("File received:", req.file); // Check if req.file is populated
@@ -125,7 +124,7 @@ app.get("/profile", async (req, res) => {
         // console.log("Token: ", token);
         //console.log("Sent Data: ", info);
         const userProfile = await User.findOne({ username: info.username });
-       // console.log("User Profile Fetched: ", userProfile);
+        // console.log("User Profile Fetched: ", userProfile);
         res.json(userProfile);
       }
     });
@@ -209,12 +208,22 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   });
 });
 
-// // 
+// ! To Get All Posts to display in homescreen
+app.get("/posts", async (req, res) => {
+  try {
+    const posts = await Post.find();
+    res.json(posts);
+  } catch (err) {
+    console.error("Error fetching posts in /post get:", err);
+    res.status(500).json({ message: "Error fetching posts" });
+  }
+});
+
+// //
 // app.get("/post", async (req, res) => {
 //   const posts = await Post.find();
 //   res.json(posts);
 // });
-
 
 // ! Delete The Post
 app.post("/delete", async (req, res) => {
@@ -230,7 +239,6 @@ app.post("/delete", async (req, res) => {
     return res.status(200).json("Post deletion successful");
   }
 });
-
 
 // ! Edit the post of user
 app.post("/edit", async (req, res) => {

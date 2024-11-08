@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react";
-import { UserContext } from "../context/UserContext";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Post from "../components/Post"; // Import Post component for editing/deleting blogs
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
 
 function Profile() {
   const [profileData, setProfileData] = useState({
@@ -20,7 +20,7 @@ function Profile() {
         const response = await axios.get("http://localhost:5000/profile", {
           withCredentials: true,
         });
-        setProfileData(response.data); // Store data in state
+        setProfileData(response.data);
         console.log(response.data);
       } catch (error) {
         console.error("Error fetching profile data:", error);
@@ -33,14 +33,8 @@ function Profile() {
   const { username, name, email, cover, followers, following } = profileData;
   const [followingList, setFollowingList] = useState([]);
   useEffect(() => {
-    const fetchFollowingList = async () => {
-      if (Array.isArray(following)) {
-        setFollowingList(following); // Directly set the array as it's already in the correct format
-      }
-    };
-
-    if (following) {
-      fetchFollowingList(); // Only fetch if 'following' exists
+    if (Array.isArray(following)) {
+      setFollowingList(following);
     }
   }, [following]);
 
@@ -55,8 +49,17 @@ function Profile() {
             withCredentials: true,
           }
         );
-        setBlogs(response.data); // Store data in state
-        console.log("Blog Data Retrieved: ", response.data);
+
+        // Ensure createdAt is properly parsed and sort blogs by newest first
+        const sortedBlogs = response.data
+          .map((blog) => ({
+            ...blog,
+            createdAt: new Date(blog.createdAt), // Convert createdAt to Date object
+          }))
+          .sort((a, b) => b.createdAt - a.createdAt); // Sort by createdAt, newest first
+
+        setBlogs(sortedBlogs);
+        console.log("Blog Data Retrieved: ", sortedBlogs);
       } catch (error) {
         console.error("Error fetching blogs:", error);
       }
@@ -69,6 +72,47 @@ function Profile() {
       prevList.filter((user) => user !== userToUnfollow)
     );
     // Optionally, send an API request here to unfollow on the backend
+  };
+
+  const handleDeleteBlog = async (blogId) => {
+    try {
+      // Send DELETE request to the /delete endpoint
+      await axios.post(
+        "http://localhost:5000/delete",
+        { id: blogId },
+        {
+          withCredentials: true,
+        }
+      );
+      // Remove the blog from the state
+      setBlogs(blogs.filter((blog) => blog._id !== blogId));
+    } catch (error) {
+      console.error("Error deleting blog:", error);
+    }
+  };
+
+  const handleEditBlog = (blogId, updatedPost) => {
+    // Send POST request to the /edit endpoint to update the blog
+    axios
+      .post(
+        "http://localhost:5000/edit",
+        {
+          id: blogId,
+          title: updatedPost.title,
+          summary: updatedPost.summary,
+          content: updatedPost.content,
+        },
+        { withCredentials: true }
+      )
+      .then((response) => {
+        // Update the blog list in the state after editing
+        setBlogs(
+          blogs.map((blog) =>
+            blog._id === blogId ? { ...blog, ...updatedPost } : blog
+          )
+        );
+      })
+      .catch((error) => console.error("Error updating blog:", error));
   };
 
   return (
@@ -101,108 +145,86 @@ function Profile() {
         {/* Followers Section */}
         <div className="bg-white shadow-lg rounded-lg p-4 w-full lg:w-1/4 overflow-y-auto h-auto">
           <h3 className="font-bold text-lg mb-2">Followers</h3>
-          <div className="overflow-x-auto overflow-y-scroll">
-            <table className="w-full table-auto">
-              <thead>
-                <tr>
-                  <th className="text-left py-2 px-4">Username</th>
-                  <th className="text-left py-2 px-4">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {followers.map((follower, index) => (
-                  <tr key={index}>
-                    <td className="py-2 px-4">{follower}</td>
-                    <td className="py-2 px-4">
-                      <button
-                        onClick={() => handleUnfollow(follower)}
-                        className="bg-red-500 text-white py-1 px-3 rounded-full text-sm"
-                      >
-                        Remove
-                      </button>
-                    </td>
+          {followers.length === 0 ? (
+            <p>No followers yet</p>
+          ) : (
+            <div className="overflow-x-auto overflow-y-scroll">
+              <table className="w-full table-auto">
+                <thead>
+                  <tr>
+                    <th className="text-left py-2 px-4">Username</th>
+                    <th className="text-left py-2 px-4">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {followers.map((follower, index) => (
+                    <tr key={index}>
+                      <td className="py-2 px-4">{follower}</td>
+                      <td className="py-2 px-4">
+                        <button
+                          onClick={() => handleUnfollow(follower)}
+                          className="bg-red-500 text-white py-1 px-3 rounded-full text-sm"
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
-        {/* Blogs Section (Fixed Height with Scroll) */}
+        {/* Blogs Section */}
         <div className="bg-white shadow-lg rounded-lg p-4 w-full lg:w-2/4 overflow-y-auto h-[500px]">
           <h3 className="font-bold text-lg mb-4">My Blogs</h3>
-          <div className="space-y-4">
-            {blogs.length === 0 ? (
-              <p>No blogs available</p>
-            ) : (
-              blogs.map((blog, index) => (
-                <div key={index} className="p-4 border-b space-y-4">
-                  {/* Blog Header: Title, Author, and Date */}
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="font-semibold text-xl">{blog.title}</div>
-                    <span className="text-gray-500 text-sm">
-                      by {blog.author}
-                    </span>
-                    <span className="text-gray-400 text-sm">
-                      · {new Date(blog.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-
-                  {/* Blog Cover Image */}
-                  {blog.cover && (
-                    <img
-                      src={`http://localhost:5000/${blog.cover}`}
-                      alt="Blog Cover"
-                      className="w-full h-64 object-cover rounded-lg mb-4"
-                    />
-                  )}
-
-                  {/* Blog Content and Summary */}
-                  <div
-                    className="text-gray-700"
-                    dangerouslySetInnerHTML={{ __html: blog.content }}
-                  ></div>
-                  <p className="mt-2 text-gray-600">{blog.summary}</p>
-
-                  {/* Blog Footer: Updated Date */}
-                  <div className="text-gray-400 text-sm mt-4">
-                    Last updated on{" "}
-                    {new Date(blog.updatedAt).toLocaleDateString()}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+          {blogs.length === 0 ? (
+            <p>No blogs posted yet</p>
+          ) : (
+            blogs.map((blog) => (
+              <Post
+                key={blog._id}
+                post={blog}
+                onDelete={handleDeleteBlog}
+                onEdit={handleEditBlog} // Passing edit handler
+              />
+            ))
+          )}
         </div>
 
         {/* Following Section */}
         <div className="bg-white shadow-lg rounded-lg p-4 w-full lg:w-1/4 overflow-y-auto h-auto">
           <h3 className="font-bold text-lg mb-2">Following</h3>
-          <div className="overflow-x-auto overflow-y-scroll">
-            <table className="w-full table-auto">
-              <thead>
-                <tr>
-                  <th className="text-left py-2 px-4">Username</th>
-                  <th className="text-left py-2 px-4">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {followingList.map((followedUser, index) => (
-                  <tr key={index}>
-                    <td className="py-2 px-4">{followedUser}</td>
-                    <td className="py-2 px-4">
-                      <button
-                        onClick={() => handleUnfollow(followedUser)}
-                        className="bg-red-500 text-white py-1 px-3 rounded-full text-sm"
-                      >
-                        Unfollow
-                      </button>
-                    </td>
+          {followingList.length === 0 ? (
+            <p>No following yet</p>
+          ) : (
+            <div className="overflow-x-auto overflow-y-scroll">
+              <table className="w-full table-auto">
+                <thead>
+                  <tr>
+                    <th className="text-left py-2 px-4">Username</th>
+                    <th className="text-left py-2 px-4">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {followingList.map((followedUser, index) => (
+                    <tr key={index}>
+                      <td className="py-2 px-4">{followedUser}</td>
+                      <td className="py-2 px-4">
+                        <button
+                          onClick={() => handleUnfollow(followedUser)}
+                          className="bg-red-500 text-white py-1 px-3 rounded-full text-sm"
+                        >
+                          Unfollow
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

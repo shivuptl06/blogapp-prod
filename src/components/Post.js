@@ -1,6 +1,4 @@
 import React, { useContext, useState } from "react";
-import axios from "axios";
-import onEdit from "./OnEdit";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 
@@ -8,11 +6,12 @@ function Post({ post, onEdit, onDelete }) {
   const { content, cover, createdAt, summary, title, author, _id } = post;
   const { username } = useContext(UserContext);
 
-  // State to track edit mode and form data
+  // State to track edit mode, form data, and modal visibility
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
   const [editSummary, setEditSummary] = useState(summary);
   const [editContent, setEditContent] = useState(content);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Format created date
   const formattedDate = createdAt
@@ -23,9 +22,18 @@ function Post({ post, onEdit, onDelete }) {
       })
     : "Date unavailable";
 
-  // Toggle edit mode
-  const toggleEditMode = () => {
-    setIsEditing(!isEditing);
+  // Open modal for unauthorized edit attempt
+  const openEditModal = () => {
+    if (username !== author) {
+      setIsModalOpen(true); // Show modal if user is not the author
+    } else {
+      setIsEditing(true); // Allow edit if the user is the author
+    }
+  };
+
+  // Close the edit modal
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   // Handle form submission for edits
@@ -41,16 +49,8 @@ function Post({ post, onEdit, onDelete }) {
     };
 
     try {
-      // Send updated post data to the backend
-      if (username !== author) {
-        setIsEditing(false);
-        return alert("Forbidden From Editing Posts That Are Not Yours");
-      } else {
-        await onEdit(_id, updatedPost);
-        setIsEditing(false);
-
-        // Exit edit mode after successful update
-      }
+      await onEdit(_id, updatedPost);
+      setIsEditing(false);
     } catch (error) {
       console.error("Error updating post:", error);
     }
@@ -102,7 +102,7 @@ function Post({ post, onEdit, onDelete }) {
             </button>
             <button
               type="button"
-              onClick={toggleEditMode}
+              onClick={() => setIsEditing(false)}
               className="bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-600 transition duration-200"
             >
               Cancel
@@ -130,7 +130,7 @@ function Post({ post, onEdit, onDelete }) {
 
           <div className="post-actions mt-4 flex space-x-4">
             <button
-              onClick={toggleEditMode}
+              onClick={openEditModal} // Trigger modal or edit mode
               className="edit-btn bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition duration-200"
             >
               Edit
@@ -143,6 +143,25 @@ function Post({ post, onEdit, onDelete }) {
             </button>
           </div>
         </>
+      )}
+
+      {/* Modal for unauthorized edit */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 sm:w-3/4 md:w-1/2 lg:w-1/3 max-w-lg mx-auto">
+            <h2 className="text-lg font-semibold text-center mb-4">
+              You are not authorized to edit posts that are not yours.
+            </h2>
+            <div className="flex justify-around">
+              <button
+                onClick={closeModal}
+                className="bg-gray-500 text-white px-6 py-2 rounded w-full sm:w-auto sm:px-6"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

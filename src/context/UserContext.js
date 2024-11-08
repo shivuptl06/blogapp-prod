@@ -63,7 +63,7 @@ function UserContextProvider({ children }) {
   // Fetch posts
   const fetchPosts = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/post");
+      const response = await axios.get("http://localhost:5000/posts");
       // console.log("Fetched posts from backend:", response.data);
       setPosts(response.data);
     } catch (error) {
