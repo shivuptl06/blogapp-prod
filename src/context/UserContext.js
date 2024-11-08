@@ -64,7 +64,7 @@ function UserContextProvider({ children }) {
   const fetchPosts = async () => {
     try {
       const response = await axios.get("http://localhost:5000/post");
-      console.log("Fetched posts from backend:", response.data);
+      // console.log("Fetched posts from backend:", response.data);
       setPosts(response.data);
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -74,6 +74,8 @@ function UserContextProvider({ children }) {
   useEffect(() => {
     fetchPosts(); // Fetch posts initially
   }, [username]);
+
+  
 
   // Optionally render a loading spinner or return null while loading
   if (loading) {

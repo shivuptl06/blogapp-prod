@@ -34,6 +34,7 @@ function Navbar() {
           }
         } else {
           console.log("Username not found");
+          //navigate("/login");
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -72,6 +73,14 @@ function Navbar() {
     }
   };
 
+  function handleHomeClick() {
+    if (username) {
+      navigate("/");
+    } else {
+      navigate("/login");
+    }
+  }
+
   // Close dropdown if clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -92,12 +101,12 @@ function Navbar() {
   return (
     <>
       <div className="flex justify-between items-center p-4 bg-gray-600">
-        <Link
-          to="/"
+        <div
           className="text-xl cursor-pointer sm:text-2xl lg:text-4xl hover:text-white"
+          onClick={handleHomeClick}
         >
           My Blog
-        </Link>
+        </div>
 
         {/* Conditionally render the search bar based on username */}
         {username && (

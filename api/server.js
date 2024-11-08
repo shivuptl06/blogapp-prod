@@ -31,9 +31,8 @@ mongoose.connect(
   "mongodb+srv://Shivam:Shivam@cluster0.fb778.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 );
 
-let userAuthor;
 
-// For signup page
+// ! For signup page
 app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
   console.log("File received:", req.file); // Check if req.file is populated
 
@@ -73,7 +72,7 @@ app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
   }
 });
 
-// For Login Page
+// ! For Login Page
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -94,10 +93,8 @@ app.post("/login", async (req, res) => {
         jwt.sign({ username, id: user.id }, secretKey, {}, (error, token) => {
           if (error) {
             console.log(error);
-            userAuthor = null;
             res.status(500).json({ message: "Internal Server Error" });
           } else {
-            userAuthor = username;
             res.cookie("token", token).json("OK");
           }
         });
@@ -111,32 +108,61 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// For profile Page
+// ! For profile Page
 app.get("/profile", async (req, res) => {
   const { token } = req.cookies;
   if (!token) {
     res.status(401).json("Unauthorized get/profile");
     console.log("No Token Found");
   } else {
-    jwt.verify(token, secretKey, {}, (error, info) => {
+    jwt.verify(token, secretKey, {}, async (error, info) => {
+      // console.log("Token Verification Started");
       if (error) {
         console.log(error);
+        console.log("Token Verification Error");
         res.status(401).json("Unauthorized get/profile");
       } else {
-        //console.log("Token: ", token);
-        res.json(info);
+        // console.log("Token: ", token);
+        //console.log("Sent Data: ", info);
+        const userProfile = await User.findOne({ username: info.username });
+       // console.log("User Profile Fetched: ", userProfile);
+        res.json(userProfile);
       }
     });
   }
 });
 
-// For logout Page
+// ! TO GET BLOGS POSTED BY A USER
+app.get("/profile/blogs", async (req, res) => {
+  const { token } = req.cookies;
+  if (!token) {
+    res.status(401).json("Unauthorized get/profile");
+    console.log("No Token Found");
+  } else {
+    jwt.verify(token, secretKey, {}, async (error, info) => {
+      if (error) {
+        console.log(error);
+        console.log("Token Verification Error");
+        res.status(401).json("Unauthorized get/profile");
+      } else {
+        const userProfile = await User.findOne({ username: info.username });
+        // console.log("UserProfile: ",userProfile);
+        const blogs = await Post.find({ author: userProfile.username });
+        res.json(blogs);
+        //console.log("Blog Info Sent: ", blogs);
+        // Blogs are correctly sent ✅
+      }
+    });
+  }
+});
+
+// ! For logout Page
 app.post("/logout", async (req, res) => {
   res.cookie("token", "");
   res.status(200).json({ message: "Logged out successfully" });
 });
 
-// For create-new-post Page
+// ! For create-new-post Page
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   const { token } = req.cookies;
 
@@ -183,11 +209,14 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   });
 });
 
-app.get("/post", async (req, res) => {
-  const posts = await Post.find();
-  res.json(posts);
-});
+// // 
+// app.get("/post", async (req, res) => {
+//   const posts = await Post.find();
+//   res.json(posts);
+// });
 
+
+// ! Delete The Post
 app.post("/delete", async (req, res) => {
   //console.log(req);
   const deletePost = await Post.findById(req.body.id);
@@ -202,6 +231,8 @@ app.post("/delete", async (req, res) => {
   }
 });
 
+
+// ! Edit the post of user
 app.post("/edit", async (req, res) => {
   const { id, title, summary, content } = req.body;
 
@@ -227,7 +258,7 @@ app.post("/edit", async (req, res) => {
   }
 });
 
-// All the extra Code is below this // // // // /////////////////////
+// ! All the extra Code is below this // // // // /////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Catch unhandled promise rejections
 process.on("unhandledRejection", (reason, promise) => {
