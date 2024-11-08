@@ -100,7 +100,7 @@ function Navbar() {
 
   return (
     <>
-      <div className="flex justify-between items-center p-4 bg-gray-600">
+      <div className="sticky top-0 z-50 flex justify-between items-center p-4 bg-gray-600 bg-opacity-90">
         <div
           className="text-xl cursor-pointer sm:text-2xl lg:text-4xl hover:text-white"
           onClick={handleHomeClick}
