@@ -72,7 +72,7 @@ function Profile() {
   };
 
   return (
-    <div className="flex flex-col items-center p-6 space-y-6 bg-gray-100 w-full min-h-screen overflow-hidden">
+    <div className="flex flex-col items-center p-6 space-y-6 bg-gray-100 w-full overflow-hidden">
       {/* Profile Section */}
       <div className="flex flex-col items-center space-y-4">
         <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
