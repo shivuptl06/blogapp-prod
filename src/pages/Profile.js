@@ -178,7 +178,8 @@ function Profile() {
 
         {/* Blogs Section */}
         <div className="bg-white shadow-lg rounded-lg p-4 w-full lg:w-2/4 overflow-y-auto h-[500px]">
-          <h3 className="font-bold text-lg mb-4">My Blogs</h3>
+          <h3 className="font-bold text-lg text-center">My Blogs</h3>
+          <div className="flex flex-col items-center">
           {blogs.length === 0 ? (
             <p>No blogs posted yet</p>
           ) : (
@@ -191,6 +192,7 @@ function Profile() {
               />
             ))
           )}
+          </div>
         </div>
 
         {/* Following Section */}
