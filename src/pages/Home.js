@@ -97,9 +97,9 @@ function Home() {
             </h2>
             <div className="flex justify-around">
               {isAuthorized ? (
-                <>
+                <div className="flex items-center space-x-8">
                   <button
-                    className="bg-blue-500 text-white px-6 py-2 rounded w-full sm:w-auto sm:px-6 mb-2 sm:mb-0"
+                    className="bg-blue-500 text-white px-6 py-2 rounded w-full sm:w-auto sm:px-6"
                     onClick={confirmDelete}
                   >
                     Confirm
@@ -110,7 +110,7 @@ function Home() {
                   >
                     Cancel
                   </button>
-                </>
+                </div>
               ) : (
                 <button
                   className="bg-gray-500 text-white px-6 py-2 rounded w-full sm:w-auto sm:px-6"
