@@ -3,8 +3,10 @@ import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 
 function Post({ post, onEdit, onDelete }) {
-  const { content, cover, createdAt, summary, title, author, _id } = post;
+  const { content, cover, createdAt, summary, title, author, _id, name } = post;
   const { username } = useContext(UserContext);
+
+  console.log(name);
 
   // State to track edit mode, form data, and modal visibility
   const [isEditing, setIsEditing] = useState(false);

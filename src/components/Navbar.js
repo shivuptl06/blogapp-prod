@@ -11,6 +11,8 @@ function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const isFirstLoad = useRef(true);
+  const [profilePath, setProfilePath] = useState("");
+  const [data, setData] = useState();
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,10 +24,11 @@ function Navbar() {
         const res = await axios.get("http://localhost:5000/profile", {
           withCredentials: true,
         });
+        setData(res.data);
+        setProfilePath(res.data.cover); // Set profile image path
 
         if (res.data.username) {
           setUsername(res.data.username);
-
           if (isFirstLoad.current) {
             toast.success(`Welcome back, ${res.data.username}`, {
               autoClose: 500,
@@ -34,7 +37,6 @@ function Navbar() {
           }
         } else {
           console.log("Username not found");
-          //navigate("/login");
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -43,7 +45,7 @@ function Navbar() {
     };
 
     fetchProfile();
-  }, [setUsername]);
+  }, [setUsername, navigate]);
 
   function logOut() {
     axios
@@ -156,7 +158,16 @@ function Navbar() {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="text-white hover:text-gray-300"
                 >
-                  <FaUserCircle className="text-2xl md:text-3xl" />
+                  {/* Conditionally render profile image or icon */}
+                  {profilePath ? (
+                    <img
+                      src={profilePath}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full"
+                    />
+                  ) : (
+                    <FaUserCircle className="text-2xl" />
+                  )}
                 </button>
                 {isDropdownOpen && (
                   <div
