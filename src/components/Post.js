@@ -1,12 +1,15 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 
 function Post({ post, onEdit, onDelete }) {
-  const { content, cover, createdAt, summary, title, author, _id, name } = post;
+  useEffect(() => {
+    // console.log(post)
+    // console.log("Post On Initial Re-render: ", post);
+  }, [post]);
+  const { content, cover, createdAt, summary, title, author, _id } = post;
   const { username } = useContext(UserContext);
-
-  console.log(name);
+  //alert("Reached Post")
 
   // State to track edit mode, form data, and modal visibility
   const [isEditing, setIsEditing] = useState(false);
@@ -58,12 +61,24 @@ function Post({ post, onEdit, onDelete }) {
     }
   };
 
+  function handleDelete() {
+    // Delete the post
+    // You can use the onRemove function here
+    if (username !== author) {
+      setIsModalOpen(true);
+    }
+    else{
+
+      onDelete(_id, author);
+    }
+  }
+
   return (
     <div className="post bg-white p-2 rounded-lg shadow-md border border-gray-300 mb-6 max-w-2xl w-full mt-10">
       {cover && !isEditing && (
         <div className="post-cover mb-4">
           <img
-            src={`/${cover}`}
+            src={`${cover}`}
             alt={title}
             className="w-full h-64 object-contain rounded-lg bg-blue-400"
           />
@@ -138,7 +153,7 @@ function Post({ post, onEdit, onDelete }) {
               Edit
             </button>
             <button
-              onClick={() => onDelete(_id, author)}
+              onClick={handleDelete}
               className="delete-btn bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition duration-200"
             >
               Delete
@@ -152,7 +167,7 @@ function Post({ post, onEdit, onDelete }) {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 sm:w-3/4 md:w-1/2 lg:w-1/3 max-w-lg mx-auto">
             <h2 className="text-lg font-semibold text-center mb-4">
-              You are not authorized to edit posts that are not yours.
+              You are not authorized to edit or delete posts that are not yours.
             </h2>
             <div className="flex justify-around">
               <button

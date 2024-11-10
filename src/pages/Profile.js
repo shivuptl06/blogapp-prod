@@ -20,8 +20,9 @@ function Profile() {
         const response = await axios.get("http://localhost:5000/profile", {
           withCredentials: true,
         });
-        setProfileData(response.data);
         console.log(response.data);
+        setProfileData(response.data);
+       
       } catch (error) {
         console.error("Error fetching profile data:", error);
       }
@@ -49,6 +50,7 @@ function Profile() {
             withCredentials: true,
           }
         );
+        
 
         // Ensure createdAt is properly parsed and sort blogs by newest first
         const sortedBlogs = response.data
@@ -180,18 +182,18 @@ function Profile() {
         <div className="bg-white shadow-lg rounded-lg p-4 w-full lg:w-2/4 overflow-y-auto h-[500px]">
           <h3 className="font-bold text-lg text-center">My Blogs</h3>
           <div className="flex flex-col items-center">
-          {blogs.length === 0 ? (
-            <p>No blogs posted yet</p>
-          ) : (
-            blogs.map((blog) => (
-              <Post
-                key={blog._id}
-                post={blog}
-                onDelete={handleDeleteBlog}
-                onEdit={handleEditBlog} // Passing edit handler
-              />
-            ))
-          )}
+            {blogs.length === 0 ? (
+              <p>No blogs posted yet</p>
+            ) : (
+              blogs.map((blog) => (
+                <Post
+                  key={blog._id}
+                  post={blog}
+                  onDelete={handleDeleteBlog}
+                  onEdit={handleEditBlog} // Passing edit handler
+                />
+              ))
+            )}
           </div>
         </div>
 

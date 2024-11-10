@@ -25,6 +25,7 @@ function Navbar() {
           withCredentials: true,
         });
         setData(res.data);
+        console.log("Resposne Data: ",res.data)
         setProfilePath(res.data.cover); // Set profile image path
 
         if (res.data.username) {

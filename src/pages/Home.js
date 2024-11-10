@@ -24,7 +24,7 @@ function Home() {
     : [];
 
   // Log posts to verify data
-  console.log("Sorted Posts in UserContext:", sortedPosts); // Debugging line
+  //console.log("Sorted Posts in UserContext:", sortedPosts); // Debugging line
 
   async function onEdit(postId, updatedPost) {
     try {

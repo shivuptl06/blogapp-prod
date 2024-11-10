@@ -32,8 +32,9 @@ mongoose.connect(
 );
 
 // ! For signup page
+// Example: For user registration (Profile Image)
 app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
-  console.log("File received:", req.file); // Check if req.file is populated
+  console.log("File received:", req.file); 
 
   const { name, email, username, password } = req.body;
   const file = req.file;
@@ -42,7 +43,6 @@ app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
     return res.status(400).json({ error: "File upload failed" });
   }
 
-  // Define a new path specifically for profile images
   const profileImageDir = "uploads/profilePic";
   if (!fs.existsSync(profileImageDir)) {
     fs.mkdirSync(profileImageDir, { recursive: true });
@@ -51,7 +51,9 @@ app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
   try {
     const { originalname, path: tempPath } = req.file;
     const newPath = path.join(profileImageDir, originalname);
-    fs.renameSync(tempPath, newPath); // Rename file into profilePic directory
+    fs.renameSync(tempPath, newPath);
+
+    const fileUrl = `http://localhost:5000/${newPath}`;  // This will give the full URL
 
     bcrypt.hash(password, saltRounds, async function (err, hash) {
       if (err) throw err;
@@ -61,15 +63,17 @@ app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
         email,
         username,
         password: hash,
-        cover: newPath,
+        cover: fileUrl,  // Store the full URL
       });
 
-      res.status(200).json({ message: "User Registration Successful" });
+      res.status(200).json({ message: "User Registration Successful", cover: fileUrl });
     });
   } catch (error) {
-    // Error handling
+    console.error("Error handling file upload:", error);
+    res.status(500).json({ error: "Error saving file" });
   }
 });
+
 
 // ! For Login Page
 app.post("/login", async (req, res) => {
@@ -81,7 +85,7 @@ app.post("/login", async (req, res) => {
   try {
     if (!user) {
       console.error("User Not Found");
-      console.log(user); // Logs `null` since no user was found
+      console.log("User Not Found at 84: ", user); // Logs `null` since no user was found
       res.status(404).json("User Not Found");
     } else {
       // Compare entered password with the stored hashed password in the user document
@@ -91,7 +95,7 @@ app.post("/login", async (req, res) => {
         // JWT
         jwt.sign({ username, id: user.id }, secretKey, {}, (error, token) => {
           if (error) {
-            console.log(error);
+            console.log("Error in Login at 94", error);
             res.status(500).json({ message: "Internal Server Error" });
           } else {
             res.cookie("token", token).json("OK");
@@ -117,7 +121,7 @@ app.get("/profile", async (req, res) => {
     jwt.verify(token, secretKey, {}, async (error, info) => {
       // console.log("Token Verification Started");
       if (error) {
-        console.log(error);
+        console.log("Error in Profile retrival at 120: ", error);
         console.log("Token Verification Error");
         res.status(401).json("Unauthorized get/profile");
       } else {
@@ -140,7 +144,7 @@ app.get("/profile/blogs", async (req, res) => {
   } else {
     jwt.verify(token, secretKey, {}, async (error, info) => {
       if (error) {
-        console.log(error);
+        console.log("Error in Blogs retrival at 143: ", error);
         console.log("Token Verification Error");
         res.status(401).json("Unauthorized get/profile");
       } else {
@@ -162,6 +166,7 @@ app.post("/logout", async (req, res) => {
 });
 
 // ! For create-new-post Page
+// Example: For blog post (Cover Image)
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   const { token } = req.cookies;
 
@@ -179,7 +184,6 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
       return res.status(400).json({ error: "File upload failed" });
     }
 
-    // Define a new path specifically for post images
     const postImageDir = "uploads/postImages";
     if (!fs.existsSync(postImageDir)) {
       fs.mkdirSync(postImageDir, { recursive: true });
@@ -187,7 +191,9 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
 
     const { originalname, path: tempPath } = req.file;
     const newPath = path.join(postImageDir, originalname);
-    fs.renameSync(tempPath, newPath); // Move file into postImages directory
+    fs.renameSync(tempPath, newPath);
+
+    const fileUrl = `http://localhost:5000/${newPath}`;  // Full URL
 
     const { title, summary, content } = req.body;
 
@@ -196,7 +202,7 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
         title,
         summary,
         content,
-        cover: newPath,
+        cover: fileUrl,  // Store the full URL for the post cover
         author: info.username,
       });
 
@@ -207,6 +213,7 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
     }
   });
 });
+
 
 // ! To Get All Posts to display in homescreen
 app.get("/posts", async (req, res) => {
@@ -263,6 +270,22 @@ app.post("/edit", async (req, res) => {
   } catch (error) {
     console.error("Error updating post:", error);
     res.status(500).json("Internal Server Error");
+  }
+});
+
+app.post("/search/users", async (req, res) => {
+  const { query } = req.body;
+  console.log("Search Parameter at 271: ", query);
+
+  const findUserData = await User.findOne({ username: query });
+  const findPost = await Post.findOne({author:findUserData.username})
+  if (!findUserData) {
+    console.log("User Not Found 404 at 275");
+    return res.status(404).json("User Not Found");
+  } else {
+    // console.log("User Found at 278", findUserData);
+    console.log("Blogs Found at 280", findPost);
+    return res.status(200).json([findUserData,findPost]);
   }
 });
 

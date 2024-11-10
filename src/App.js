@@ -19,6 +19,7 @@ import AllData from "./pages/AllData";
 import { UserContext, UserContextProvider } from "./context/UserContext";
 import CreatePost from "./pages/CreatePost";
 import Profile from "./pages/Profile";
+import SearchResults from "./pages/SearchResults";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/all-data" element={<AllData />} />
           <Route path="/create" element={<CreatePost />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/search/users" element={<SearchResults />} />
         </Routes>
         <Footer />
       </UserContextProvider>
