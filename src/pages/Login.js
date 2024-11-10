@@ -63,7 +63,7 @@ function Auth() {
               type="text"
               name="username"
               value={username}
-              onChange={(e) => setLocalUsername(e.target.value)}
+              onChange={(e) => setLocalUsername((e.target.value).toLowerCase())}
               placeholder="Username"
               className="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />

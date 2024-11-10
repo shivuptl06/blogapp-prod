@@ -34,7 +34,7 @@ function SearchResults() {
     setLoading(true);
     try {
       const response = await axios.post("http://localhost:5000/search/users", {
-        query: searchParams,
+        query: searchParams.toLocaleLowerCase(),
       });
       //console.log("Response data:", response.data[1]);
       data = response.data[1];

@@ -60,7 +60,7 @@ function SignUp() {
     // Add the user information
     formData.append("name", name);
     formData.append("email", email);
-    formData.append("username", tempUsername);
+    formData.append("username", tempUsername.toLowerCase());
     formData.append("password", password);
 
     // If there's a profile picture, append it as well (if it's a Blob file)
