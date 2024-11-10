@@ -79,6 +79,7 @@ function Navbar() {
   function handleHomeClick() {
     if (username) {
       navigate("/");
+      setSearchQuery("");
     } else {
       navigate("/login");
     }
@@ -228,8 +229,8 @@ function Navbar() {
               </select>
               <input
                 type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchQuery.toLowerCase()}
+                onChange={(e) => setSearchQuery(e.target.value.toLowerCase())}
                 placeholder={`Search ${searchType.toLowerCase()}...`}
                 className="p-2 w-full bg-gray-100 focus:outline-none"
               />
