@@ -16,7 +16,6 @@ function Navbar() {
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchType, setSearchType] = useState("Blogs");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -25,7 +24,7 @@ function Navbar() {
           withCredentials: true,
         });
         setData(res.data);
-        console.log("Resposne Data: ",res.data)
+        //console.log("Response Data: ", res.data);
         setProfilePath(res.data.cover); // Set profile image path
 
         if (res.data.username) {
@@ -41,7 +40,6 @@ function Navbar() {
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
-        navigate("/login");
       }
     };
 
@@ -69,10 +67,10 @@ function Navbar() {
 
   const handleSearch = (event) => {
     event.preventDefault();
-    if (searchType === "Users") {
-      navigate(`/search/users?query=${searchQuery}`);
+    if (username === searchQuery) {
+      navigate("/profile");
     } else {
-      navigate(`/search/blogs?query=${searchQuery}`);
+      navigate(`/search/users?query=${searchQuery}`);
     }
   };
 
@@ -80,8 +78,6 @@ function Navbar() {
     if (username) {
       navigate("/");
       setSearchQuery("");
-    } else {
-      navigate("/login");
     }
   }
 
@@ -114,34 +110,24 @@ function Navbar() {
 
         {/* Conditionally render the search bar based on username */}
         {username && (
-          <div className="hidden sm:flex flex-1 justify-center">
+          <div className="hidden sm:flex flex-1 justify-center ">
             <form
               onSubmit={handleSearch}
               className="flex items-center w-full max-w-md mx-auto"
             >
-              <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden w-full">
-                <select
-                  value={searchType}
-                  onChange={(e) => setSearchType(e.target.value)}
-                  className="p-2 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 h-full"
-                >
-                  <option value="Blogs">Blogs</option>
-                  <option value="Users">Users</option>
-                </select>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={`Search ${searchType.toLowerCase()}...`}
-                  className="p-2 w-full bg-gray-100 focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="p-2 bg-blue-500 text-white hover:bg-blue-600"
-                >
-                  Search
-                </button>
-              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value.toLowerCase())}
+                placeholder="Search users..."
+                className="p-2 w-full bg-gray-100 focus:outline-none rounded-l-xl"
+              />
+              <button
+                type="submit"
+                className="p-2 bg-blue-500 text-white hover:bg-blue-600 rounded-r-xl"
+              >
+                Search
+              </button>
             </form>
           </div>
         )}
@@ -165,7 +151,7 @@ function Navbar() {
                     <img
                       src={profilePath}
                       alt="Profile"
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full object-contain"
                     />
                   ) : (
                     <FaUserCircle className="text-2xl" />
@@ -219,19 +205,11 @@ function Navbar() {
         {username && (
           <form onSubmit={handleSearch} className="w-full">
             <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-              <select
-                value={searchType}
-                onChange={(e) => setSearchType(e.target.value)}
-                className="p-2 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 h-full"
-              >
-                <option value="Blogs">Blogs</option>
-                <option value="Users">Users</option>
-              </select>
               <input
                 type="text"
-                value={searchQuery.toLowerCase()}
+                value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value.toLowerCase())}
-                placeholder={`Search ${searchType.toLowerCase()}...`}
+                placeholder="Search users..."
                 className="p-2 w-full bg-gray-100 focus:outline-none"
               />
               <button

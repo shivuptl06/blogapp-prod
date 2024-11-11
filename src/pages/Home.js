@@ -5,8 +5,16 @@ import axios from "axios";
 import Post from "../components/Post";
 
 function Home() {
-  const navigate = useNavigate();
   const { username, posts, fetchPosts } = useContext(UserContext);
+
+  useEffect(()=>{
+    if (!username){
+      navigate('/login');
+    }
+  })
+
+
+  const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");

@@ -34,7 +34,7 @@ mongoose.connect(
 // ! For signup page
 // Example: For user registration (Profile Image)
 app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
-  console.log("File received:", req.file); 
+  console.log("File received:", req.file);
 
   const { name, email, username, password } = req.body;
   const file = req.file;
@@ -53,7 +53,7 @@ app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
     const newPath = path.join(profileImageDir, originalname);
     fs.renameSync(tempPath, newPath);
 
-    const fileUrl = `http://localhost:5000/${newPath}`;  // This will give the full URL
+    const fileUrl = `http://localhost:5000/${newPath}`; // This will give the full URL
 
     bcrypt.hash(password, saltRounds, async function (err, hash) {
       if (err) throw err;
@@ -63,17 +63,18 @@ app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
         email,
         username,
         password: hash,
-        cover: fileUrl,  // Store the full URL
+        cover: fileUrl, // Store the full URL
       });
 
-      res.status(200).json({ message: "User Registration Successful", cover: fileUrl });
+      res
+        .status(200)
+        .json({ message: "User Registration Successful", cover: fileUrl });
     });
   } catch (error) {
     console.error("Error handling file upload:", error);
     res.status(500).json({ error: "Error saving file" });
   }
 });
-
 
 // ! For Login Page
 app.post("/login", async (req, res) => {
@@ -193,7 +194,7 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
     const newPath = path.join(postImageDir, originalname);
     fs.renameSync(tempPath, newPath);
 
-    const fileUrl = `http://localhost:5000/${newPath}`;  // Full URL
+    const fileUrl = `http://localhost:5000/${newPath}`; // Full URL
 
     const { title, summary, content } = req.body;
 
@@ -202,7 +203,7 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
         title,
         summary,
         content,
-        cover: fileUrl,  // Store the full URL for the post cover
+        cover: fileUrl, // Store the full URL for the post cover
         author: info.username,
       });
 
@@ -213,7 +214,6 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
     }
   });
 });
-
 
 // ! To Get All Posts to display in homescreen
 app.get("/posts", async (req, res) => {
@@ -273,19 +273,109 @@ app.post("/edit", async (req, res) => {
   }
 });
 
+// ! To Search For User Details and sends User Details searched and also blogs posted by that user
 app.post("/search/users", async (req, res) => {
   const { query } = req.body;
-  console.log("Search Parameter at 271: ", query);
+  //console.log("Search Parameter at 271: ", query);
 
   const findUserData = await User.findOne({ username: query });
-  const findPost = await Post.findOne({author:findUserData.username})
+  const findPost = await Post.findOne({ author: findUserData.username });
   if (!findUserData) {
-    console.log("User Not Found 404 at 275");
+    //console.log("User Not Found 404 at 275");
     return res.status(404).json("User Not Found");
   } else {
     // console.log("User Found at 278", findUserData);
-    console.log("Blogs Found at 280", findPost);
-    return res.status(200).json([findUserData,findPost]);
+    //console.log("Blogs Found at 280", findPost);
+    return res.status(200).json([findUserData, findPost]);
+  }
+});
+
+// ! Follows a user when follow button is clicked [Update Followers and Following]
+app.post("/follow", async (req, res) => {
+  const { currentUsername, userToFollow } = req.body;
+  // console.log(currentUsername); ✅
+  // console.log(userToFollow);✅
+  const findUser = User.findOne({ username: currentUsername });
+  const findUserToFollow = User.findOne({ username: userToFollow });
+  if (!findUser) {
+    console.log("User Not Found 404");
+    return res.status(404).json("User Not Found");
+  } else if (!findUserToFollow) {
+    console.log("User Not Found 404");
+    return res.status(404).json("User Not Found");
+  } else {
+    try {
+      const updatedUserProfile = await User.findOneAndUpdate(
+        { username: currentUsername },
+        {
+          $addToSet: { following: userToFollow },
+        },
+        { new: true }
+      );
+      console.log("New Following", updatedUserProfile);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json("Internal Server Error");
+    }
+    // Update The Follower List
+    try {
+      const updatedUserProfileForFollower = await User.findOneAndUpdate(
+        { username: userToFollow },
+        {
+          $addToSet: { followers: currentUsername },
+        },
+        { new: true }
+      );
+      console.log("New Follower", updatedUserProfileForFollower);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json("Internal Server Error");
+    }
+    //return res.status(200).json(updatedUserProfile);
+  }
+});
+
+// ! Unfollow a user
+app.post("/unfollow", async (req, res) => {
+  const { currentUsername, userToUnfollow } = req.body;
+
+  // Removes from following list
+  const findUser = User.findOne({ username: currentUsername });
+  const findUserToUnfollow = User.findOne({ username: userToUnfollow });
+
+  if (!findUser || !findUserToUnfollow) {
+    console.log("User Not Found 404 to remove from following or follower");
+  } else {
+    try {
+      const updatedUserProfile = await User.findOneAndUpdate(
+        { username: currentUsername },
+        {
+          $pull: { following: userToUnfollow },
+        },
+        { new: true }
+      );
+      console.log("Removed Following: ", updatedUserProfile);
+    } catch (error) {
+      console.error("Error removing following at 356 user:", error);
+      res.status(500).json("Internal Server Error");
+    }
+  }
+
+  // Removes current user as a follower from the other user's profile
+  try {
+    const updatedProfileUser = await User.findOneAndUpdate(
+      { username: userToUnfollow },
+      {
+        $pull: { followers: currentUsername },
+      },
+      {
+        new: true,
+      }
+    );
+    console.log("Removed Follower", updatedProfileUser);
+  } catch (error) {
+    console.error("Error removing Follower at 371 user:", error);
+    res.status(500).json("Internal Server Error");
   }
 });
 

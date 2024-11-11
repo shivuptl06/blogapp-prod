@@ -14,8 +14,8 @@ const userSchema = new Schema({
     default: `../default/defau.png`, // Default SVG profile pic
   },
   password: { type: String, required: true },
-  followers: { type: Array, default: ["Jack", "Micheal"] },
-  following: { type: Array, default: ["Angelina", "Cristine"] },
+  followers: { type: Array, unique: true, },
+  following: { type: Array, unique: true,  },
 });
 
 const UserModel = mongoose.model("User", userSchema);

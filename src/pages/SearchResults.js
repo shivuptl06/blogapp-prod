@@ -2,6 +2,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import ProfileDisplay from "../components/ProfileDisplay";
+import { useContext } from "react";
+import { UserContext } from "../context/UserContext";
 
 function SearchResults() {
   const location = useLocation();
@@ -11,6 +13,7 @@ function SearchResults() {
   const [blogs, setBlogs] = useState([]); // Ensure blogs is initialized as an empty array
   const [loading, setLoading] = useState(true);
   let data;
+  const { username } = useContext(UserContext);
 
   useEffect(() => {
     //console.log("Blogs updated:", blogs);
@@ -39,9 +42,9 @@ function SearchResults() {
       //console.log("Response data:", response.data[1]);
       data = response.data[1];
       //console.log("Data: ",data);
-      
+
       setBlogs(data);
-      console.log("BLOG AT 42:", blogs)
+      //console.log("Response Data at 44", response.data)
 
       if (response.data && response.data.length >= 2) {
         setProfileData(response.data[0]);
@@ -49,12 +52,34 @@ function SearchResults() {
         //   ? response.data[1]
         //   : [];
         // setBlogs(newBlogs);
-        console.log("New blogs:", blogs);
+        //console.log("New blogs:", blogs);
       }
     } catch (error) {
       console.error("Error fetching search results:", error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleFollow() {
+    // alert("Reached Handle Follow in Search Results.")
+    console.log("Data Retrieved in SR: ", profileData.username); //✅
+    alert(`Profile.Username: ${profileData.username}`);
+    const response = await axios.post("/follow", {
+      currentUsername: username,
+      userToFollow: profileData.username,
+    });
+  }
+
+  async function handleUnfollow() {
+    alert("REACHED HANDLE REMOVE IN SD")
+    try {
+      await axios.post("/unfollow", {
+        currentUsername: username,
+        userToUnfollow: profileData.username,
+      });
+    } catch (error) {
+      console.error("Error Unfollowing User:", error);
     }
   }
 
@@ -67,10 +92,13 @@ function SearchResults() {
           <ProfileDisplay
             cover={profileData.cover}
             name={profileData.name}
-            username={profileData.username}
+            user={profileData.username}
             email={profileData.email}
             followers={profileData.followers || []}
             blogs={blogs}
+            following={profileData.following}
+            handleFollow={handleFollow}
+            handleUnfollow={handleUnfollow}
           />
         )
       )}
