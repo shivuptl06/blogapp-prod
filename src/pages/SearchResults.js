@@ -64,7 +64,7 @@ function SearchResults() {
   async function handleFollow() {
     // alert("Reached Handle Follow in Search Results.")
     console.log("Data Retrieved in SR: ", profileData.username); //✅
-    alert(`Profile.Username: ${profileData.username}`);
+    //alert(`Profile.Username: ${profileData.username}`);
     const response = await axios.post("/follow", {
       currentUsername: username,
       userToFollow: profileData.username,
@@ -72,7 +72,7 @@ function SearchResults() {
   }
 
   async function handleUnfollow() {
-    alert("REACHED HANDLE REMOVE IN SD")
+    //alert("REACHED HANDLE REMOVE IN SD")
     try {
       await axios.post("/unfollow", {
         currentUsername: username,

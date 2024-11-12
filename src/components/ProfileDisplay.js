@@ -74,6 +74,7 @@ function ProfileDisplay({
   };
 
   function handleFollowLogic() {
+    setIsFollowing(true);
     setFollowingList((prevFollowingList) => [...prevFollowingList, user]);
     handleFollow(); // Call the parent function
   }
@@ -92,7 +93,7 @@ function ProfileDisplay({
   };
 
   function handleUnfollowLogic(){
-    alert("Inside handleUnfollow. YET TO BE REDIRECTED");
+    //alert("Inside handleUnfollow. YET TO BE REDIRECTED");
     setFollowingList(
       followingList.filter((following)=>{
         return following!==username
@@ -133,7 +134,7 @@ function ProfileDisplay({
             {/* Display Follow Button if user isnt following  */}
             {!isFollowing ? (
               <button
-                className="p-1 rounded-lg bg-green-500 hover:bg-green-600"
+                className="p-1 rounded-lg bg-blue-500 hover:bg-blue-600"
                 onClick={handleFollowLogic}
               >
                 Follow
