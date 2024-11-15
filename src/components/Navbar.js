@@ -59,7 +59,7 @@ function Navbar() {
       .then(() => {
         setUsername(null);
         navigate("/login");
-        setSearchQuery(null)
+        setSearchQuery(null);
       })
       .catch((error) => {
         console.error("Error logging out:", error);
@@ -105,6 +105,7 @@ function Navbar() {
         <div
           className="text-xl cursor-pointer sm:text-2xl lg:text-4xl hover:text-white"
           onClick={handleHomeClick}
+          style={{ fontFamily: "Sega" }}
         >
           My Blog
         </div>

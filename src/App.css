@@ -1,7 +1,13 @@
+@font-face {
+  font-family: "Sega";
+  src: url("/fonts/SEGA.TTF") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 .App {
   text-align: center;
 }
-
 
 .App-logo {
   height: 40vmin;
