@@ -13,6 +13,7 @@ const multer = require("multer");
 const fs = require("fs");
 const port = 5000; // or any other safe port
 const path = require("path");
+const { timeStamp } = require("console");
 app.use(
   cors({
     origin: "http://localhost:3000", // Replace with your frontend URL
@@ -289,6 +290,39 @@ app.post("/search/users", async (req, res) => {
     return res.status(200).json([findUserData, findPost]);
   }
 });
+
+// ! Retrieves the posts of people that the user follows
+// ! Retrieves the posts of people that the user follows
+app.post("/getPosts", async (req, res) => {
+  try {
+    const { username } = req.body;
+
+    // Find the user to get their following list
+    const user = await User.findOne({ username: username });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const followingList = user.following;
+
+    // Retrieve posts of users in the following list, sorted by timestamp (descending)
+    const retrievedPosts = await Post.find({
+      author: { $in: followingList },
+    }).sort({ timestamp: -1 }).lean(); // Use await here to get the data
+
+    console.log("Posts Found: ", retrievedPosts);
+
+    // Send the retrieved posts as a response
+    res.json(retrievedPosts);
+    console.log("Sent Relevant Posts");
+
+  } catch (error) {
+    console.error("Error retrieving User-Specific posts:", error);
+    res.status(500).json("Internal Server Error");
+  }
+});
+
 
 // ! Follows a user when follow button is clicked [Update Followers and Following]
 app.post("/follow", async (req, res) => {

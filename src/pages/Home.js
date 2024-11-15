@@ -5,35 +5,48 @@ import axios from "axios";
 import Post from "../components/Post";
 
 function Home() {
-  const { username, posts, fetchPosts } = useContext(UserContext);
-
-  useEffect(()=>{
-    if (!username){
-      navigate('/login');
-    }
-  })
-
-
-  const navigate = useNavigate();
-
+  const { username } = useContext(UserContext);
+  const [fetchedPosts, setFetchedPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [postToDelete, setPostToDelete] = useState(null);
   const [isAuthorized, setIsAuthorized] = useState(true);
 
-  // Sort posts by 'createdAt' field to show the newest posts first
-  const sortedPosts = posts
-    ? posts
-        .map((post) => ({
-          ...post,
-          createdAt: new Date(post.createdAt), // Ensure createdAt is a Date object
-        }))
-        .sort((a, b) => b.createdAt - a.createdAt) // Sort by createdAt, newest first
-    : [];
+  const navigate = useNavigate();
 
-  // Log posts to verify data
-  //console.log("Sorted Posts in UserContext:", sortedPosts); // Debugging line
+  // Redirect to login if username is not available
+  useEffect(() => {
+    if (!username) {
+      navigate("/login");
+    }
+  }, [username, navigate]);
 
+  // Fetch posts specific to the user
+  useEffect(() => {
+    async function fetchUserSpecificPosts() {
+      if (!username) return;
+
+      try {
+        const response = await axios.post("http://localhost:5000/getPosts", {
+          username: username,
+        });
+        setFetchedPosts(response.data); // Correctly access the data
+      } catch (error) {
+        console.error("Error fetching user-specific posts:", error);
+      }
+    }
+    fetchUserSpecificPosts();
+  }, [username]); // Only fetch when username changes
+
+  // Sort the fetched posts by 'createdAt' (newest first)
+  const sortedPosts = fetchedPosts
+    .map((post) => ({
+      ...post,
+      createdAt: new Date(post.createdAt), // Ensure createdAt is a Date object
+    }))
+    .sort((a, b) => b.createdAt - a.createdAt); // Sort by createdAt, newest first
+
+  // Handle edit post
   async function onEdit(postId, updatedPost) {
     try {
       const response = await axios.post("http://localhost:5000/edit", {
@@ -41,12 +54,13 @@ function Home() {
         ...updatedPost,
       });
       console.log("Post updated successfully:", response.data);
-      fetchPosts(); // Refetch posts after updating
+      fetchUserSpecificPosts(); // Refetch posts after updating
     } catch (error) {
       console.error("Error updating post:", error);
     }
   }
 
+  // Handle delete post
   async function handleDelete(_id, author) {
     if (username !== author) {
       setIsAuthorized(false);
@@ -61,16 +75,17 @@ function Home() {
     setIsModalOpen(true);
   }
 
+  // Confirm delete post
   async function confirmDelete() {
     setIsModalOpen(false);
-    console.log("Attempting to delete post with ID:", postToDelete); // Debugging line
-    
+    console.log("Attempting to delete post with ID:", postToDelete);
+
     try {
       const response = await axios.post("http://localhost:5000/delete", {
         id: postToDelete,
       });
       console.log("Post deleted successfully:", response.data);
-      fetchPosts(); // Refetch posts after deleting
+      fetchUserSpecificPosts(); // Refetch posts after deleting
       setPostToDelete(null); // Reset postToDelete state after deletion
     } catch (error) {
       console.error("Error deleting post:", error);
@@ -78,6 +93,7 @@ function Home() {
     }
   }
 
+  // Close modal
   function closeModal() {
     setIsModalOpen(false);
   }
