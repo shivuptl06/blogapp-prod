@@ -22,7 +22,6 @@ function Profile() {
         });
         console.log(response.data);
         setProfileData(response.data);
-       
       } catch (error) {
         console.error("Error fetching profile data:", error);
       }
@@ -33,11 +32,18 @@ function Profile() {
 
   const { username, name, email, cover, followers, following } = profileData;
   const [followingList, setFollowingList] = useState([]);
+  const [followersList, setFollowersList] = useState([]);
   useEffect(() => {
     if (Array.isArray(following)) {
       setFollowingList(following);
     }
   }, [following]);
+
+  useEffect(() => {
+    if (Array.isArray(followers)) {
+      setFollowersList(followers);
+    }
+  }, [followers]);
 
   // Retrieving Blogs of the logged-in user
   const [blogs, setBlogs] = useState([]);
@@ -50,7 +56,6 @@ function Profile() {
             withCredentials: true,
           }
         );
-        
 
         // Ensure createdAt is properly parsed and sort blogs by newest first
         const sortedBlogs = response.data
@@ -69,11 +74,27 @@ function Profile() {
     fetchBlogs();
   }, []);
 
-  const handleUnfollow = (userToUnfollow) => {
+  const handleUnfollow = async (userToUnfollow) => {
+    await axios.post("http://localhost:5000/unfollow", {
+      currentUsername: username,
+      userToUnfollow: userToUnfollow,
+    });
+
     setFollowingList((prevList) =>
       prevList.filter((user) => user !== userToUnfollow)
     );
     // Optionally, send an API request here to unfollow on the backend
+  };
+
+  const removeFollower = async (followerToRemove) => {
+    await axios.post("http://localhost:5000/removefollower", {
+      currentUsername: username,
+      followerToRemove: followerToRemove,
+    });
+
+    setFollowersList((prevList) =>
+      prevList.filter((user) => user !== followerToRemove)
+    );
   };
 
   const handleDeleteBlog = async (blogId) => {
@@ -147,7 +168,7 @@ function Profile() {
         {/* Followers Section */}
         <div className="bg-white shadow-lg rounded-lg p-4 w-full lg:w-1/4 overflow-y-auto h-auto">
           <h3 className="font-bold text-lg mb-2">Followers</h3>
-          {followers.length === 0 ? (
+          {followersList.length === 0 ? (
             <p>No followers yet</p>
           ) : (
             <div className="overflow-x-auto overflow-y-scroll">
@@ -159,12 +180,12 @@ function Profile() {
                   </tr>
                 </thead>
                 <tbody>
-                  {followers.map((follower, index) => (
+                  {followersList.map((follower, index) => (
                     <tr key={index}>
                       <td className="py-2 px-4">{follower}</td>
                       <td className="py-2 px-4">
                         <button
-                          onClick={() => handleUnfollow(follower)}
+                          onClick={() => removeFollower(follower)}
                           className="bg-red-500 text-white py-1 px-3 rounded-full text-sm"
                         >
                           Remove

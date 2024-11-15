@@ -59,6 +59,7 @@ function Navbar() {
       .then(() => {
         setUsername(null);
         navigate("/login");
+        setSearchQuery(null)
       })
       .catch((error) => {
         console.error("Error logging out:", error);

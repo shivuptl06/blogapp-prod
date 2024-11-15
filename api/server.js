@@ -339,42 +339,60 @@ app.post("/follow", async (req, res) => {
 app.post("/unfollow", async (req, res) => {
   const { currentUsername, userToUnfollow } = req.body;
 
-  // Removes from following list
-  const findUser = User.findOne({ username: currentUsername });
-  const findUserToUnfollow = User.findOne({ username: userToUnfollow });
-
-  if (!findUser || !findUserToUnfollow) {
-    console.log("User Not Found 404 to remove from following or follower");
-  } else {
-    try {
-      const updatedUserProfile = await User.findOneAndUpdate(
-        { username: currentUsername },
-        {
-          $pull: { following: userToUnfollow },
-        },
-        { new: true }
-      );
-      console.log("Removed Following: ", updatedUserProfile);
-    } catch (error) {
-      console.error("Error removing following at 356 user:", error);
-      res.status(500).json("Internal Server Error");
-    }
-  }
-
-  // Removes current user as a follower from the other user's profile
+  // Removes from following list Current User POV
   try {
-    const updatedProfileUser = await User.findOneAndUpdate(
-      { username: userToUnfollow },
+    await User.findOneAndUpdate(
+      { username: currentUsername },
       {
-        $pull: { followers: currentUsername },
-      },
-      {
-        new: true,
+        $pull: {
+          following: userToUnfollow,
+        },
       }
     );
-    console.log("Removed Follower", updatedProfileUser);
   } catch (error) {
-    console.error("Error removing Follower at 371 user:", error);
+    console.error("Error Unfollowing user:", error);
+  }
+
+  // Removes from Current User as follower from other person POV
+  try {
+    await User.findOneAndUpdate(
+      { username: userToUnfollow },
+      {
+        $pull: {
+          followers: currentUsername,
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Error Unfollowing user:", error);
+  }
+});
+
+// ! Remove a Follower from your follower list
+// ! Remove a Follower from your follower list
+app.post("/removefollower", async (req, res) => {
+  const { currentUsername, followerToRemove } = req.body;
+
+  try {
+    // Remove follower from `currentUsername`'s followers list
+    await User.findOneAndUpdate(
+      { username: currentUsername },
+      { $pull: { followers: followerToRemove } }
+    );
+    console.log("Follower successfully removed from followers list");
+
+    // Remove current user from `followerToRemove`'s following list
+    await User.findOneAndUpdate(
+      { username: followerToRemove },
+      { $pull: { following: currentUsername } }
+    );
+    console.log(
+      "User successfully removed from following list of followerToRemove"
+    );
+
+    res.status(200).json("Follower successfully removed");
+  } catch (error) {
+    console.error("Error removing follower:", error);
     res.status(500).json("Internal Server Error");
   }
 });
