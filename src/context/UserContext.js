@@ -20,6 +20,12 @@ function UserContextProvider({ children }) {
   const [profilePic, setProfilePic] = useState();
   const [followers, setFollowers] = useState(["John", "Micheal"]); // Now an array
   const [following, setFollowing] = useState(["Cristine", "Angelina"]); // Now an array
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
+
+  useEffect(() => {
+    // Check if current page is the user's profile page
+    setIsOwnProfile(location.pathname === `/profile`);
+  }, [location, username]);
 
   // Check authentication status
   useEffect(() => {
@@ -75,8 +81,6 @@ function UserContextProvider({ children }) {
     fetchPosts(); // Fetch posts initially
   }, [username]);
 
-  
-
   // Optionally render a loading spinner or return null while loading
   if (loading) {
     return null;
@@ -104,6 +108,7 @@ function UserContextProvider({ children }) {
         setFollowers,
         following,
         setFollowing,
+        isOwnProfile
       }}
     >
       {children}

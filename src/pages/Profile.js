@@ -212,6 +212,7 @@ function Profile() {
                   post={blog}
                   onDelete={handleDeleteBlog}
                   onEdit={handleEditBlog} // Passing edit handler
+                  isOwnProfile={true}
                 />
               ))
             )}

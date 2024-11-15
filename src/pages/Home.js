@@ -54,7 +54,7 @@ function Home() {
         ...updatedPost,
       });
       console.log("Post updated successfully:", response.data);
-      fetchUserSpecificPosts(); // Refetch posts after updating
+      //fetchUserSpecificPosts(); // Refetch posts after updating
     } catch (error) {
       console.error("Error updating post:", error);
     }
@@ -85,7 +85,7 @@ function Home() {
         id: postToDelete,
       });
       console.log("Post deleted successfully:", response.data);
-      fetchUserSpecificPosts(); // Refetch posts after deleting
+      //fetchUserSpecificPosts(); // Refetch posts after deleting
       setPostToDelete(null); // Reset postToDelete state after deletion
     } catch (error) {
       console.error("Error deleting post:", error);

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/UserContext";
 import { toast } from "react-toastify";
 
-function Post({ post, onEdit, onDelete }) {
+function Post({ post, onEdit, onDelete, isOwnProfile }) {
   useEffect(() => {
     // console.log(post)
     // console.log("Post On Initial Re-render: ", post);
@@ -66,9 +66,7 @@ function Post({ post, onEdit, onDelete }) {
     // You can use the onRemove function here
     if (username !== author) {
       setIsModalOpen(true);
-    }
-    else{
-
+    } else {
       onDelete(_id, author);
     }
   }
@@ -80,7 +78,7 @@ function Post({ post, onEdit, onDelete }) {
           <img
             src={`${cover}`}
             alt={title}
-            className="w-full h-64 object-contain rounded-lg bg-blue-400"
+            className="w-full h-64 object-contain rounded-lg bg-gray-200"
           />
         </div>
       )}
@@ -144,21 +142,22 @@ function Post({ post, onEdit, onDelete }) {
           <div className="post-content text-gray-800">
             <div dangerouslySetInnerHTML={{ __html: content }} />
           </div>
-
-          <div className="post-actions mt-4 flex space-x-4">
-            <button
-              onClick={openEditModal} // Trigger modal or edit mode
-              className="edit-btn bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition duration-200"
-            >
-              Edit
-            </button>
-            <button
-              onClick={handleDelete}
-              className="delete-btn bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition duration-200"
-            >
-              Delete
-            </button>
-          </div>
+          {isOwnProfile && (
+            <div className="post-actions mt-4 flex space-x-4">
+              <button
+                onClick={openEditModal} // Trigger modal or edit mode
+                className="edit-btn bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition duration-200"
+              >
+                Edit
+              </button>
+              <button
+                onClick={handleDelete}
+                className="delete-btn bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition duration-200"
+              >
+                Delete
+              </button>
+            </div>
+          )}
         </>
       )}
 
