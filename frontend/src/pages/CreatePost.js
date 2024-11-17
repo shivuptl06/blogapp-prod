@@ -76,7 +76,7 @@ function CreatePost() {
 
     // Here you can call your API to create a new post
     try {
-      const response = await axios.post("http://localhost:5000/post", data, {
+      const response = await axios.post("https://blogapp-backend-vfng.onrender.com/post", data, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });
