@@ -31,7 +31,7 @@ function UserContextProvider({ children }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/profile", {
+        const response = await axios.get("https://blogapp-backend-vfng.onrender.com/profile", {
           withCredentials: true,
         });
         if (response.data.username) {
@@ -69,7 +69,7 @@ function UserContextProvider({ children }) {
   // Fetch posts
   const fetchPosts = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/posts");
+      const response = await axios.get("https://blogapp-backend-vfng.onrender.com/posts");
       // console.log("Fetched posts from backend:", response.data);
       setPosts(response.data);
     } catch (error) {
