@@ -27,7 +27,7 @@ function Home() {
       if (!username) return;
 
       try {
-        const response = await axios.post("http://localhost:5000/getPosts", {
+        const response = await axios.post("https://blogapp-backend-vfng.onrender.com/getPosts", {
           username: username,
         });
         setFetchedPosts(response.data); // Correctly access the data
@@ -49,7 +49,7 @@ function Home() {
   // Handle edit post
   async function onEdit(postId, updatedPost) {
     try {
-      const response = await axios.post("http://localhost:5000/edit", {
+      const response = await axios.post("https://blogapp-backend-vfng.onrender.com/edit", {
         id: postId,
         ...updatedPost,
       });
@@ -81,7 +81,7 @@ function Home() {
     console.log("Attempting to delete post with ID:", postToDelete);
 
     try {
-      const response = await axios.post("http://localhost:5000/delete", {
+      const response = await axios.post("https://blogapp-backend-vfng.onrender.com/delete", {
         id: postToDelete,
       });
       console.log("Post deleted successfully:", response.data);
