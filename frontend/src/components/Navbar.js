@@ -20,7 +20,7 @@ function Navbar() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/profile", {
+        const res = await axios.get("https://blogapp-backend-vfng.onrender.com/profile", {
           withCredentials: true,
         });
         setData(res.data);
@@ -49,7 +49,7 @@ function Navbar() {
   function logOut() {
     axios
       .post(
-        "http://localhost:5000/logout",
+        "https://blogapp-backend-vfng.onrender.com/logout",
         {},
         {
           withCredentials: true,
