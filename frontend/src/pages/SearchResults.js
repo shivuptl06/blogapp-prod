@@ -36,7 +36,7 @@ function SearchResults() {
   async function getSearchedUserDetails() {
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:5000/search/users", {
+      const response = await axios.post("https://blogapp-backend-vfng.onrender.com/search/users", {
         query: searchParams.toLocaleLowerCase(),
       });
       //console.log("Response data:", response.data[1]);
