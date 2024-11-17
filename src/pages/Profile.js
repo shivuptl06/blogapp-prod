@@ -75,14 +75,18 @@ function Profile() {
   }, []);
 
   const handleUnfollow = async (userToUnfollow) => {
-    await axios.post("http://localhost:5000/unfollow", {
-      currentUsername: username,
-      userToUnfollow: userToUnfollow,
-    });
+    try {
+      await axios.post("http://localhost:5000/unfollow", {
+        currentUsername: username,
+        userToUnfollow: userToUnfollow,
+      });
 
-    setFollowingList((prevList) =>
-      prevList.filter((user) => user !== userToUnfollow)
-    );
+      setFollowingList((prevList) =>
+        prevList.filter((user) => user !== userToUnfollow)
+      );
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+    }
     // Optionally, send an API request here to unfollow on the backend
   };
 

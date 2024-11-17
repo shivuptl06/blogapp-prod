@@ -9,6 +9,7 @@ function Post({ post, onEdit, onDelete, isOwnProfile }) {
   const [editTitle, setEditTitle] = useState(title);
   const [editSummary, setEditSummary] = useState(summary);
   const [editContent, setEditContent] = useState(content);
+  const [editCover, setEditCover] = useState(null); // New state for image
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formattedDate = createdAt
@@ -32,15 +33,17 @@ function Post({ post, onEdit, onDelete, isOwnProfile }) {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-    const updatedPost = {
-      id: _id,
-      title: editTitle,
-      summary: editSummary,
-      content: editContent,
-    };
+    const formData = new FormData();
+    formData.append("id", _id);
+    formData.append("title", editTitle);
+    formData.append("summary", editSummary);
+    formData.append("content", editContent);
+    if (editCover) {
+      formData.append("cover", editCover);
+    }
 
     try {
-      await onEdit(_id, updatedPost);
+      await onEdit(_id, formData); // Ensure the `onEdit` function handles `FormData`
       setIsEditing(false);
     } catch (error) {
       console.error("Error updating post:", error);
@@ -68,7 +71,10 @@ function Post({ post, onEdit, onDelete, isOwnProfile }) {
       )}
 
       {isEditing ? (
-        <form onSubmit={handleEditSubmit} className="space-y-4 p-4 bg-gray-50 rounded-lg">
+        <form
+          onSubmit={handleEditSubmit}
+          className="space-y-4 p-4 bg-gray-50 rounded-lg"
+        >
           <input
             type="text"
             value={editTitle}
@@ -90,6 +96,12 @@ function Post({ post, onEdit, onDelete, isOwnProfile }) {
             className="w-full p-2 border border-gray-300 rounded-lg text-sm md:text-base"
             placeholder="Content"
             required
+          />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setEditCover(e.target.files[0])}
+            className="w-full p-2 border border-gray-300 rounded-lg text-sm md:text-base"
           />
           <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
             <button

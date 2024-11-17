@@ -2,21 +2,22 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const userSchema = new Schema({
-  //   const { username, name, email, profilePic, followers, following } = useContext(UserContext);
-
-  username: { type: String, required: true, min: 4, unique: true },
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  cover: {
-    type: String,
-    required: true,
-    default: `../default/defau.png`, // Default SVG profile pic
+const userSchema = new Schema(
+  {
+    username: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    cover: { type: String, required: true, default: "default_image_url" },
+    password: { type: String, required: true },
+    followers: { type: [String], ref: "User", default: [] },
+    following: {
+      type: [String],
+      ref: "User",
+      default: [],
+    },
   },
-  password: { type: String, required: true },
-  followers: { type: Array, unique: true, },
-  following: { type: Array, unique: true,  },
-});
+  { timestamps: true } // Automatically adds `createdAt` and `updatedAt`
+);
 
 const UserModel = mongoose.model("User", userSchema);
 

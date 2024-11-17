@@ -54,6 +54,34 @@ function SignUp() {
   async function registerUser(e) {
     e.preventDefault();
 
+    // Basic validation
+    if (!name || !email || !tempUsername || !password) {
+      toast.error("All fields are required!");
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Invalid email format!");
+      return;
+    }
+
+    // Validate username (e.g., alphanumeric and non-empty)
+    const usernameRegex = /^[a-zA-Z0-9_]{3,}$/; // At least 3 characters, alphanumeric, underscores allowed
+    if (!usernameRegex.test(tempUsername)) {
+      toast.error(
+        "Username must be at least 3 characters long and contain only letters, numbers, or underscores."
+      );
+      return;
+    }
+
+    // Validate password (e.g., minimum 6 characters)
+    // if (password.length < 6) {
+    //   toast.error("Password must be at least 6 characters long.");
+    //   return;
+    // }
+
     // Create FormData to handle file upload
     const formData = new FormData();
 
@@ -62,40 +90,41 @@ function SignUp() {
     formData.append("email", email);
     formData.append("username", tempUsername.toLowerCase());
     formData.append("password", password);
+    formData.append("followers", []);
+    formData.append("following", []);
 
-    // If there's a profile picture, append it as well (if it's a Blob file)
-    if (profilePic instanceof Blob) {
-      formData.append("file", profilePic);
+    // Add profile picture if provided
+    if (profilePic) {
+      formData.append("file", profilePic); // Append the profile picture to the FormData
+      console.log("Profile picture added:", profilePic.name);
     } else {
-      formData.append("file", profilePic);
-      // formData.append("file")
-      // If no file is selected, use default profile pic URL
-      // formData.append("file", )); // empty file with name, if no file provided
+      toast.error("Profile image is required.");
+      return; // Prevent form submission if no image is provided
     }
 
-    // Log each key-value pair in formData for verification
+    // Debugging: Log all formData entries (remove in production)
     for (let [key, value] of formData.entries()) {
       console.log(`${key}:`, value);
     }
 
+    // Send data to the server
     try {
-      const response = await axios.post(
-        "http://localhost:5000/register",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post("/register", formData);
+      toast.success("Registration successful!");
+
+      // Success handling
       console.log(response.data.message);
+      toast.success(response.data.message);
       setIsSignedIn(true);
-      navigate("/"); // Navigate after successful signup
       setUsername(tempUsername);
+      navigate("/"); // Navigate after successful signup
     } catch (error) {
-      setIsSignedIn(false);
-      console.error("Error:", error.message);
-      toast.error(error.message);
+      // Error handling
+      if (error.response && error.response.status === 409) {
+        toast.error(error.response.data.error); // Displays: "The following already exists: email"
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
     }
   }
 

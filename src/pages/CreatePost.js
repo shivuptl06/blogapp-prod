@@ -16,6 +16,7 @@ function CreatePost() {
   const navigate = useNavigate();
 
   const [error, setError] = useState("");
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 5MB
 
   const { username, setUsername, fetchPosts } = useContext(UserContext);
 
@@ -26,6 +27,26 @@ function CreatePost() {
     } else {
       setError("");
     }
+  }
+
+  function handleFileChange(e) {
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/png", "image/jpg", "image/gif"];
+    if (!validTypes.includes(selectedFile.type)) {
+      toast.error("Only image files are allowed!");
+      return;
+    }
+
+    // Validate file size
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      toast.error("File size exceeds the 10MB limit!");
+      return;
+    }
+
+    setFile(selectedFile); // If valid, set the file
   }
 
   async function createNewPost(e) {
@@ -100,9 +121,8 @@ function CreatePost() {
             <input
               required
               type="file"
-              onChange={(e) => {
-                setFile(e.target.files[0]);
-              }}
+              accept="image/*"
+              onChange={handleFileChange}
               className="border border-gray-300 rounded-lg p-3 w-full transition hover:bg-gray-100"
             />
           </div>

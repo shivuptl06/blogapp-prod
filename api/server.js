@@ -13,7 +13,12 @@ const multer = require("multer");
 const fs = require("fs");
 const port = 5000; // or any other safe port
 const path = require("path");
+const cloudinary = require("cloudinary").v2;
+const { v4: uuidv4 } = require("uuid");
 const { timeStamp } = require("console");
+require("dotenv").config();
+
+
 app.use(
   cors({
     origin: "http://localhost:3000", // Replace with your frontend URL
@@ -21,59 +26,100 @@ app.use(
   })
 );
 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
 
-const uploadMiddleware = multer({ dest: "uploads/" });
+const uploadMiddleware = multer({ storage: multer.memoryStorage() });
 
-mongoose.connect(
-  "mongodb+srv://Shivam:Shivam@cluster0.fb778.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-);
-
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 // ! For signup page
-// Example: For user registration (Profile Image)
 app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
-  console.log("File received:", req.file);
-
-  const { name, email, username, password } = req.body;
-  const file = req.file;
-
-  if (!file) {
-    return res.status(400).json({ error: "File upload failed" });
-  }
-
-  const profileImageDir = "uploads/profilePic";
-  if (!fs.existsSync(profileImageDir)) {
-    fs.mkdirSync(profileImageDir, { recursive: true });
-  }
-
   try {
-    const { originalname, path: tempPath } = req.file;
-    const newPath = path.join(profileImageDir, originalname);
-    fs.renameSync(tempPath, newPath);
+    const { name, email, username, password } = req.body;
+    const file = req.file;
 
-    const fileUrl = `http://localhost:5000/${newPath}`; // This will give the full URL
+    // Validate request data
+    if (!name || !email || !username || !password) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
 
-    bcrypt.hash(password, saltRounds, async function (err, hash) {
-      if (err) throw err;
+    if (!file) {
+      return res.status(400).json({ error: "Profile image is required." });
+    }
 
-      await User.create({
-        name,
-        email,
-        username,
-        password: hash,
-        cover: fileUrl, // Store the full URL
-      });
+    console.log("File received:", file);
 
-      res
-        .status(200)
-        .json({ message: "User Registration Successful", cover: fileUrl });
+    // Upload the image to Cloudinary
+    const uploadResult = await cloudinary.uploader.upload(file.path, {
+      folder: "profilePicture", // Organize uploads in "profilePicture" folder
+      public_id: uuidv4(), // Generate a unique identifier for the file
+    });
+
+    console.log("Cloudinary upload successful:", uploadResult);
+
+    // Clean up the temporary file
+    fs.unlinkSync(file.path);
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Save the user to the database
+    const newUser = await User.create({
+      name,
+      email,
+      username,
+      password: hashedPassword,
+      cover: uploadResult.secure_url,
+      following: [], // Set default value explicitly if needed
+      followers: [],
+    });
+
+    console.log("New user created:", newUser);
+
+    // Respond with success
+    res.status(201).json({
+      message: "User Registration Successful",
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        username: newUser.username,
+        cover: newUser.cover,
+        following: [],
+        followers: [],
+      },
     });
   } catch (error) {
-    console.error("Error handling file upload:", error);
-    res.status(500).json({ error: "Error saving file" });
+    console.error("Error during registration:", error);
+
+    if (error.name === "ValidationError") {
+      return res
+        .status(400)
+        .json({ error: `Validation error: ${error.message}` });
+    }
+
+    if (error.code === 11000) {
+      const duplicateField =
+        Object.keys(error.keyValue || error.keyPattern || {}).join(", ") ||
+        "unknown field";
+      return res.status(409).json({
+        error: `The following already exists: ${duplicateField}`,
+      });
+    }
+
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -168,17 +214,16 @@ app.post("/logout", async (req, res) => {
 });
 
 // ! For create-new-post Page
-// Example: For blog post (Cover Image)
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   const { token } = req.cookies;
 
   if (!token) {
-    return res.status(401).json("Unauthorized No Token in post:post");
+    return res.status(401).json("Unauthorized: No token in post:post");
   }
 
   jwt.verify(token, secretKey, {}, async (error, info) => {
     if (error) {
-      return res.status(401).json("Unauthorized error in post:post");
+      return res.status(401).json("Unauthorized: Error in post:post");
     }
 
     const file = req.file;
@@ -186,31 +231,36 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
       return res.status(400).json({ error: "File upload failed" });
     }
 
-    const postImageDir = "uploads/postImages";
-    if (!fs.existsSync(postImageDir)) {
-      fs.mkdirSync(postImageDir, { recursive: true });
-    }
-
-    const { originalname, path: tempPath } = req.file;
-    const newPath = path.join(postImageDir, originalname);
-    fs.renameSync(tempPath, newPath);
-
-    const fileUrl = `http://localhost:5000/${newPath}`; // Full URL
-
     const { title, summary, content } = req.body;
 
     try {
+      // Upload image to Cloudinary
+      const uploadResult = await cloudinary.uploader.upload(file.path, {
+        folder: "postImages", // Organize uploads into a "postImages" folder
+      });
+
+      // Clean up the temporary file
+      fs.unlinkSync(file.path);
+
+      // Create the post with the Cloudinary URL
       const postDoc = await Post.create({
         title,
         summary,
         content,
-        cover: fileUrl, // Store the full URL for the post cover
+        cover: uploadResult.secure_url, // Store the Cloudinary URL for the cover
         author: info.username,
       });
 
       res.status(200).json(postDoc);
+      console.log("Post Created On Cloudinary: ", postDoc);
     } catch (err) {
       console.error("Error creating post:", err);
+
+      // Clean up the temp file in case of an error
+      if (file && fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+      }
+
       res.status(500).json({ message: "Error creating post" });
     }
   });
@@ -235,41 +285,75 @@ app.get("/posts", async (req, res) => {
 
 // ! Delete The Post
 app.post("/delete", async (req, res) => {
-  //console.log(req);
-  const deletePost = await Post.findById(req.body.id);
-  if (!deletePost) {
-    console.log("Post Not Found 404");
-    return res.status(404).json("Post Not Found");
-  } else {
-    const id = deletePost._id;
+  const { id } = req.body;
+
+  try {
+    const deletePost = await Post.findById(id);
+
+    if (!deletePost) {
+      return res.status(404).json("Post Not Found");
+    }
+
+    // Delete the file from Cloudinary
+    const oldImagePublicId = deletePost.cover.split("/").pop().split(".")[0]; // Extract public ID
+    await cloudinary.uploader.destroy(`postImages/${oldImagePublicId}`);
+
+    // Delete the post from MongoDB
     await Post.deleteOne({ _id: id });
-    console.log("Post Deleted Successfully");
-    return res.status(200).json("Post deletion successful");
+
+    res.status(200).json("Post deletion successful");
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json("Internal Server Error");
   }
 });
 
 // ! Edit the post of user
-app.post("/edit", async (req, res) => {
+app.post("/edit", uploadMiddleware.single("file"), async (req, res) => {
   const { id, title, summary, content } = req.body;
+  const file = req.file;
 
   try {
-    const findPost = await Post.findById(id); // Ensure to use `findById`
+    const findPost = await Post.findById(id); // Ensure the post exists
 
     if (!findPost) {
-      console.log("Post Not Found 404");
       return res.status(404).json("Post Not Found");
     }
 
-    // Update the post
+    // If a new file is uploaded, handle file replacement
+    if (file) {
+      // Delete the old file from Cloudinary
+      const oldImagePublicId = findPost.cover.split("/").pop().split(".")[0]; // Extract public ID from the URL
+      await cloudinary.uploader.destroy(`postImages/${oldImagePublicId}`);
+
+      // Upload new file to Cloudinary
+      const uploadResult = await cloudinary.uploader.upload(file.path, {
+        folder: "postImages",
+      });
+
+      // Update the cover field with the new URL
+      findPost.cover = uploadResult.secure_url;
+
+      // Clean up the temporary file
+      fs.unlinkSync(file.path);
+    }
+
+    // Update other fields
     findPost.title = title;
     findPost.summary = summary;
     findPost.content = content;
 
     await findPost.save(); // Save the updated document
 
-    res.status(200).json(findPost); // Return the updated post document
+    res.status(200).json(findPost); // Return updated post
   } catch (error) {
     console.error("Error updating post:", error);
+
+    // Clean up temp file in case of error
+    if (file && fs.existsSync(file.path)) {
+      fs.unlinkSync(file.path);
+    }
+
     res.status(500).json("Internal Server Error");
   }
 });
@@ -309,20 +393,20 @@ app.post("/getPosts", async (req, res) => {
     // Retrieve posts of users in the following list, sorted by timestamp (descending)
     const retrievedPosts = await Post.find({
       author: { $in: followingList },
-    }).sort({ timestamp: -1 }).lean(); // Use await here to get the data
+    })
+      .sort({ timestamp: -1 })
+      .lean(); // Use await here to get the data
 
-    console.log("Posts Found: ", retrievedPosts);
+    //  console.log("Posts Found: ", retrievedPosts);
 
     // Send the retrieved posts as a response
-    res.json(retrievedPosts);
-    console.log("Sent Relevant Posts");
-
+    //res.json(retrievedPosts);
+    //console.log("Sent Relevant Posts");
   } catch (error) {
     console.error("Error retrieving User-Specific posts:", error);
     res.status(500).json("Internal Server Error");
   }
 });
-
 
 // ! Follows a user when follow button is clicked [Update Followers and Following]
 app.post("/follow", async (req, res) => {
@@ -375,34 +459,44 @@ app.post("/unfollow", async (req, res) => {
 
   // Removes from following list Current User POV
   try {
-    await User.findOneAndUpdate(
+    const updatedUserProfile = await User.findOneAndUpdate(
       { username: currentUsername },
       {
         $pull: {
           following: userToUnfollow,
         },
+      },
+      {
+        new: true,
       }
     );
+    console.log("Removed Follower", updatedUserProfile);
   } catch (error) {
     console.error("Error Unfollowing user:", error);
   }
 
   // Removes from Current User as follower from other person POV
   try {
-    await User.findOneAndUpdate(
+    const updatedUserProfileForFollower = await User.findOneAndUpdate(
       { username: userToUnfollow },
       {
         $pull: {
           followers: currentUsername,
         },
+      },
+      {
+        new: true,
       }
+    );
+    console.log(
+      "Removed Current User as Follower",
+      updatedUserProfileForFollower
     );
   } catch (error) {
     console.error("Error Unfollowing user:", error);
   }
 });
 
-// ! Remove a Follower from your follower list
 // ! Remove a Follower from your follower list
 app.post("/removefollower", async (req, res) => {
   const { currentUsername, followerToRemove } = req.body;
@@ -411,14 +505,20 @@ app.post("/removefollower", async (req, res) => {
     // Remove follower from `currentUsername`'s followers list
     await User.findOneAndUpdate(
       { username: currentUsername },
-      { $pull: { followers: followerToRemove } }
+      { $pull: { followers: followerToRemove } },
+      {
+        new: true,
+      }
     );
     console.log("Follower successfully removed from followers list");
 
     // Remove current user from `followerToRemove`'s following list
     await User.findOneAndUpdate(
       { username: followerToRemove },
-      { $pull: { following: currentUsername } }
+      { $pull: { following: currentUsername } },
+      {
+        new: true,
+      }
     );
     console.log(
       "User successfully removed from following list of followerToRemove"
