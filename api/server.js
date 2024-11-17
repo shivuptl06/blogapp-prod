@@ -7,7 +7,6 @@ const Post = require("./models/post");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const jwt = require("jsonwebtoken");
-const secretKey = "1234567890987654321";
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
 const fs = require("fs");
@@ -17,7 +16,6 @@ const cloudinary = require("cloudinary").v2;
 const { v4: uuidv4 } = require("uuid");
 const { timeStamp } = require("console");
 require("dotenv").config();
-
 
 app.use(
   cors({
@@ -31,7 +29,6 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
 
 // Middleware
 app.use(express.json());
