@@ -2,7 +2,7 @@ import axios from "axios";
 
 async function onEdit(postId, updatedPost) {
     try {
-      const response = await axios.post("http://localhost:5000/edit", {
+      const response = await axios.post("https://blogapp-backend-vfng.onrender.com/edit", {
         id: postId,
         ...updatedPost,
       });
