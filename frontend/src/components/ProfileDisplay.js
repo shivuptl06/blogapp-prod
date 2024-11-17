@@ -41,7 +41,7 @@ function ProfileDisplay({
   const handleDeleteBlog = async (blogId) => {
     try {
       await axios.post(
-        "http://localhost:5000/delete",
+        "https://blogapp-backend-vfng.onrender.com/delete",
         { id: blogId },
         { withCredentials: true }
       );
@@ -54,7 +54,7 @@ function ProfileDisplay({
   const handleEditBlog = (blogId, updatedPost) => {
     axios
       .post(
-        "http://localhost:5000/edit",
+        "https://blogapp-backend-vfng.onrender.com/edit",
         {
           id: blogId,
           title: updatedPost.title,
