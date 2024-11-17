@@ -452,11 +452,12 @@ app.post("/follow", async (req, res) => {
 });
 
 // ! Unfollow a user
+// ! Unfollow a user
 app.post("/unfollow", async (req, res) => {
   const { currentUsername, userToUnfollow } = req.body;
 
-  // Removes from following list Current User POV
   try {
+    // Removes from following list (Current User's POV)
     const updatedUserProfile = await User.findOneAndUpdate(
       { username: currentUsername },
       {
@@ -469,12 +470,8 @@ app.post("/unfollow", async (req, res) => {
       }
     );
     console.log("Removed Follower", updatedUserProfile);
-  } catch (error) {
-    console.error("Error Unfollowing user:", error);
-  }
 
-  // Removes from Current User as follower from other person POV
-  try {
+    // Removes from followers list (Other User's POV)
     const updatedUserProfileForFollower = await User.findOneAndUpdate(
       { username: userToUnfollow },
       {
@@ -486,14 +483,19 @@ app.post("/unfollow", async (req, res) => {
         new: true,
       }
     );
-    console.log(
-      "Removed Current User as Follower",
-      updatedUserProfileForFollower
-    );
+    console.log("Removed Current User as Follower", updatedUserProfileForFollower);
+
+    // Send a response back to the client with the updated following list
+    res.status(200).json({
+      success: true,
+      updatedFollowingList: updatedUserProfile.following,
+    });
   } catch (error) {
     console.error("Error Unfollowing user:", error);
+    res.status(500).json({ success: false, message: "Error unfollowing user" });
   }
 });
+
 
 // ! Remove a Follower from your follower list
 app.post("/removefollower", async (req, res) => {
