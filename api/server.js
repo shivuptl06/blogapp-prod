@@ -10,11 +10,9 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
 const fs = require("fs");
-const port = 5000; // or any other safe port
-const path = require("path");
+const port = process.env.PORT || 5000; // or any other safe port
 const cloudinary = require("cloudinary").v2;
 const { v4: uuidv4 } = require("uuid");
-const { timeStamp } = require("console");
 require("dotenv").config();
 
 app.use(
