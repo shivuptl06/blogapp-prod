@@ -24,6 +24,8 @@ app.use(
   })
 );
 
+const secretKey = process.env.SECRET_KEY;
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -33,7 +35,6 @@ cloudinary.config({
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use("/uploads", express.static("uploads"));
 
 const uploadMiddleware = multer({ storage: multer.memoryStorage() });
 
