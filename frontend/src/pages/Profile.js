@@ -17,7 +17,7 @@ function Profile() {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/profile", {
+        const response = await axios.get("https://blogapp-backend-vfng.onrender.com/profile", {
           withCredentials: true,
         });
         console.log(response.data);
@@ -51,7 +51,7 @@ function Profile() {
     const fetchBlogs = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/profile/blogs",
+          "https://blogapp-backend-vfng.onrender.com/profile/blogs",
           {
             withCredentials: true,
           }
@@ -77,7 +77,7 @@ function Profile() {
   const handleUnfollow = async (userToUnfollow) => {
     try {
       // Send the unfollow request
-      const response = await axios.post("http://localhost:5000/unfollow", {
+      const response = await axios.post("https://blogapp-backend-vfng.onrender.com/unfollow", {
         currentUsername: username,
         userToUnfollow: userToUnfollow,
       });
@@ -95,7 +95,7 @@ function Profile() {
   };
 
   const removeFollower = async (followerToRemove) => {
-    await axios.post("http://localhost:5000/removefollower", {
+    await axios.post("https://blogapp-backend-vfng.onrender.com/removefollower", {
       currentUsername: username,
       followerToRemove: followerToRemove,
     });
@@ -109,7 +109,7 @@ function Profile() {
     try {
       // Send DELETE request to the /delete endpoint
       await axios.post(
-        "http://localhost:5000/delete",
+        "https://blogapp-backend-vfng.onrender.com/delete",
         { id: blogId },
         {
           withCredentials: true,
@@ -126,7 +126,7 @@ function Profile() {
     // Send POST request to the /edit endpoint to update the blog
     axios
       .post(
-        "http://localhost:5000/edit",
+        "https://blogapp-backend-vfng.onrender.com/edit",
         {
           id: blogId,
           title: updatedPost.title,
