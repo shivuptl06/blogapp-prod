@@ -8,7 +8,7 @@ function AllData() {
     // Fetch data when the component mounts
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/alldata", {
+        const response = await axios.get("https://blogapp-backend-vfng.onrender.com/alldata", {
           headers: {
             "Content-Type": "application/json",
           },
