@@ -69,7 +69,7 @@ function SearchResults() {
   console.log("Entered handle Follow");
 
   try {
-    const response = await axios.post("/follow", {
+    const response = await axios.post("https://blogapp-prod-production.up.railway.app/follow", {
       currentUsername: username,
       userToFollow: profileData.username,
     });
@@ -84,7 +84,7 @@ function SearchResults() {
   async function handleUnfollow() {
     //alert("REACHED HANDLE REMOVE IN SD")
     try {
-      await axios.post("/unfollow", {
+      await axios.post("https://blogapp-prod-production.up.railway.app/unfollow", {
         currentUsername: username,
         userToUnfollow: profileData.username,
       });
