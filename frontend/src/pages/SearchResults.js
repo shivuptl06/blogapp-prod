@@ -64,17 +64,22 @@ function SearchResults() {
     }
   }
 
-  async function handleFollow() {
-    // alert("Reached Handle Follow in Search Results.")
-    console.log("Data Retrieved in SR: ", profileData.username); //✅
-    console.log("Entered handle FOllow");
-    //alert(`Profile.Username: ${profileData.username}`);
+ async function handleFollow() {
+  console.log("Data Retrieved in SR: ", profileData.username);
+  console.log("Entered handle Follow");
+
+  try {
     const response = await axios.post("/follow", {
       currentUsername: username,
       userToFollow: profileData.username,
     });
-    console.log("Response Receieved in handleFollow: ", response.data);
+
+    console.log("Response Received in handleFollow: ", response.data);
+  } catch (error) {
+    console.error("Error in handleFollow:", error.response || error);
   }
+}
+
 
   async function handleUnfollow() {
     //alert("REACHED HANDLE REMOVE IN SD")
