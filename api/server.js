@@ -209,7 +209,7 @@ app.get("/profile/blogs", async (req, res) => {
 
 // ! For logout Page
 app.post("/logout", async (req, res) => {
-  res.clearCookie("token", { httpOnly: true, secure: true, sameSite: "strict" }); // Clear the cookie
+  res.clearCookie("token", { httpOnly: true, secure: true, sameSite: "none" }); // Clear the cookie
   res.status(200).json({ message: "Logged out successfully" });
 });
 
