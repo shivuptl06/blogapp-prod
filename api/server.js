@@ -17,7 +17,7 @@ require("dotenv").config();
 
 app.use(
   cors({
-    origin: "https://blogapp-frontend-awlh.onrender.com", // Replace with your frontend URL
+    origin: "https://blogapp-prod.vercel.app/", // Replace with your frontend URL
     credentials: true, // Allow cookies to be sent with requests
   })
 );
