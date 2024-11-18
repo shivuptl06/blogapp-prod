@@ -142,7 +142,11 @@ app.post("/login", async (req, res) => {
             console.log("Error in Login at 94", error);
             res.status(500).json({ message: "Internal Server Error" });
           } else {
-            res.cookie("token", token).json("OK");
+            res.cookie("token", token,{
+    httpOnly: true,
+    secure: false, // Set to true in production
+    sameSite: "none",
+  }).json("OK");
           }
         });
       } else {
@@ -158,10 +162,10 @@ app.post("/login", async (req, res) => {
 // ! For profile Page
 app.get("/profile", async (req, res) => {
   const { token } = req.cookies;
-  if (!token) {
-    res.status(401).json("Unauthorized get/profile");
-    console.log("No Token Found");
-  } else {
+  // if (!token) {
+  //   res.status(401).json("Unauthorized get/profile");
+  //   console.log("No Token Found");
+  // } else {
     jwt.verify(token, secretKey, {}, async (error, info) => {
       // console.log("Token Verification Started");
       if (error) {
@@ -176,7 +180,7 @@ app.get("/profile", async (req, res) => {
         res.json(userProfile);
       }
     });
-  }
+  // }
 });
 
 // ! TO GET BLOGS POSTED BY A USER
