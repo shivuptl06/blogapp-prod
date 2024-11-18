@@ -17,17 +17,17 @@ require("dotenv").config();
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Replace with your frontend URL
+    origin: "https://blogapp-prod-frontend.vercel.app", // Replace with your frontend URL
     credentials: true, // Allow cookies to be sent with requests
   })
 );
 
-const secretKey = "1234567890987654321";
+const secretKey = process.env.SECRET_KEY;
 
 cloudinary.config({
-  cloud_name: "dpdx6ezoq",
-    api_key: "547468737787187",
-  api_secret: "QXshrdOzRvOZN_gDTT5lLui--iQ",
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 // Middleware
