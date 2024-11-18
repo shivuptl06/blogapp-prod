@@ -17,17 +17,17 @@ require("dotenv").config();
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Replace with your frontend URL
+    origin: "https://blogapp-prod-frontend.vercel.app/", // Replace with your frontend URL
     credentials: true, // Allow cookies to be sent with requests
   })
 );
 
-const secretKey = "1234567890987654321";
+const secretKey = process.env.SECRET_KEY;
 
 cloudinary.config({
-  cloud_name: "dpdx6ezoq",
-    api_key: "547468737787187",
-  api_secret: "QXshrdOzRvOZN_gDTT5lLui--iQ",
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 // Middleware
@@ -209,7 +209,7 @@ app.get("/profile/blogs", async (req, res) => {
 
 // ! For logout Page
 app.post("/logout", async (req, res) => {
-  res.cookie("token", "");
+  res.clearCookie("token", { httpOnly: true, secure: true, sameSite: "none" }); // Clear the cookie
   res.status(200).json({ message: "Logged out successfully" });
 });
 
@@ -417,11 +417,11 @@ app.post("/getPosts", async (req, res) => {
     //  console.log("Posts Found: ", retrievedPosts);
 
     // Send the retrieved posts as a response
-    //res.json(retrievedPosts);
-    //console.log("Sent Relevant Posts");
+    res.status(200).json(retrievedPosts);
+    console.log("Sent Relevant Posts");
   } catch (error) {
     console.error("Error retrieving User-Specific posts:", error);
-    res.status(500).json("Internal Server Error");
+    res.status(500).json("Error retrieving User-Specific posts:");
   }
 });
 
