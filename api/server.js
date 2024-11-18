@@ -17,17 +17,17 @@ require("dotenv").config();
 
 app.use(
   cors({
-    origin: "https://blogapp-prod.vercel.app/", // Replace with your frontend URL
+    origin: "http://localhost:3000", // Replace with your frontend URL
     credentials: true, // Allow cookies to be sent with requests
   })
 );
 
-const secretKey = process.env.SECRET_KEY;
+const secretKey = "1234567890987654321";
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: "dpdx6ezoq",
+    api_key: "547468737787187",
+  api_secret: "QXshrdOzRvOZN_gDTT5lLui--iQ",
 });
 
 // Middleware
@@ -115,7 +115,7 @@ app.post("/register", uploadMiddleware.single("file"), async (req, res) => {
       });
     }
 
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error from file github" });
   }
 });
 
@@ -142,7 +142,11 @@ app.post("/login", async (req, res) => {
             console.log("Error in Login at 94", error);
             res.status(500).json({ message: "Internal Server Error" });
           } else {
-            res.cookie("token", token).json("OK");
+            res.cookie("token", token,{
+    httpOnly: true,
+    secure: true, // Set to true in production
+    sameSite: "none",
+  }).json("OK");
           }
         });
       } else {
@@ -158,10 +162,10 @@ app.post("/login", async (req, res) => {
 // ! For profile Page
 app.get("/profile", async (req, res) => {
   const { token } = req.cookies;
-  if (!token) {
-    res.status(401).json("Unauthorized get/profile");
-    console.log("No Token Found");
-  } else {
+  // if (!token) {
+  //   res.status(401).json("Unauthorized get/profile");
+  //   console.log("No Token Found");
+  // } else {
     jwt.verify(token, secretKey, {}, async (error, info) => {
       // console.log("Token Verification Started");
       if (error) {
@@ -176,7 +180,7 @@ app.get("/profile", async (req, res) => {
         res.json(userProfile);
       }
     });
-  }
+  // }
 });
 
 // ! TO GET BLOGS POSTED BY A USER
@@ -212,45 +216,62 @@ app.post("/logout", async (req, res) => {
 // ! For create-new-post Page
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   const { token } = req.cookies;
+  console.log("Request Body:", req.body); // Log the body (title, summary, content)
+console.log("Uploaded File Info:", req.file); // Log the file object
+
 
   if (!token) {
+    console.log("Entered !token");
     return res.status(401).json("Unauthorized: No token in post:post");
   }
 
   jwt.verify(token, secretKey, {}, async (error, info) => {
+
+    console.log("Entered jwt verification");
+    
+    
     if (error) {
+      console.log("Entered Error block 1 in JWT verification block");
       return res.status(401).json("Unauthorized: Error in post:post");
     }
 
     const file = req.file;
     if (!file) {
+      console.log("No File Found. Entered !file in JWT Verification");
       return res.status(400).json({ error: "File upload failed" });
     }
 
     const { title, summary, content } = req.body;
 
-    try {
+     try {
+      console.log("Entered Try Block In JWT verification");
       // Upload image to Cloudinary
-      const uploadResult = await cloudinary.uploader.upload(file.path, {
-        folder: "postImages", // Organize uploads into a "postImages" folder
-      });
+      const uploadResult = await cloudinary.uploader.upload_stream({
+        folder: "postImages",
+      }, async (error, result) => {
+        if (error) {
+          console.log("Cloudinary upload error:", error);
+          return res.status(500).json({ message: "Error uploading image" });
+        }
 
-      // Clean up the temporary file
-      fs.unlinkSync(file.path);
+        // Create the post with the Cloudinary URL
+        const postDoc = await Post.create({
+          title,
+          summary,
+          content,
+          cover: result.secure_url,
+          author: info.username,
+        });
 
-      // Create the post with the Cloudinary URL
-      const postDoc = await Post.create({
-        title,
-        summary,
-        content,
-        cover: uploadResult.secure_url, // Store the Cloudinary URL for the cover
-        author: info.username,
-      });
+        console.log("Post Created On Cloudinary: ", postDoc);
+        res.status(200).json(postDoc);
+      }).end(file.buffer);
 
-      res.status(200).json(postDoc);
-      console.log("Post Created On Cloudinary: ", postDoc);
-    } catch (err) {
-      console.error("Error creating post:", err);
+    }
+     catch (err) {
+      console.log("Faced Error. Entered Catch Block in main try-catch");
+
+      console.log("Error creating post:", err);
 
       // Clean up the temp file in case of an error
       if (file && fs.existsSync(file.path)) {

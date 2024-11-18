@@ -74,14 +74,20 @@ function CreatePost() {
       console.error("No file selected.");
     }
 
+    // Log FormData content before sending
+    console.log("FormData content:");
+    for (let [key, value] of data.entries()) {
+      console.log(key, value);
+    }
+
     // Here you can call your API to create a new post
     try {
       const response = await axios.post(
         "https://blogapp-prod-production.up.railway.app/post",
         data,
+
         {
           withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" },
         }
       );
       console.log(response.data);
@@ -92,7 +98,19 @@ function CreatePost() {
         navigate("/");
       }
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Error creating post:", error); // This will show the full error object
+      if (error.response) {
+        // If the error is from the backend
+        console.error("Error response from server:", error.response);
+        console.error("Status:", error.response.status);
+        console.error("Data:", error.response.data);
+      } else if (error.request) {
+        // If the request was made but no response was received
+        console.error("Error request:", error.request);
+      } else {
+        // If the error happened while setting up the request
+        console.error("Error message:", error.message);
+      }
     }
   }
 
