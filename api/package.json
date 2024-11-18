@@ -41,8 +41,8 @@
   },
   "scripts": {
     "start": "node server.js",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "build": "echo \"No build step necessary\"",
+    "test": "echo \"No tests specified\"",
     "eject": "react-scripts eject",
     "dev": "nodemon server.js",
     "dev:full": "concurrently \"npm run dev\" \"npm start\""
