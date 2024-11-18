@@ -417,11 +417,11 @@ app.post("/getPosts", async (req, res) => {
     //  console.log("Posts Found: ", retrievedPosts);
 
     // Send the retrieved posts as a response
-    //res.json(retrievedPosts);
-    //console.log("Sent Relevant Posts");
+    res.status(200).json(retrievedPosts);
+    console.log("Sent Relevant Posts");
   } catch (error) {
     console.error("Error retrieving User-Specific posts:", error);
-    res.status(500).json("Internal Server Error");
+    res.status(500).json("Error retrieving User-Specific posts:");
   }
 });
 
