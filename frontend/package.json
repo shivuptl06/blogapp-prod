@@ -48,12 +48,16 @@
     "dev": "nodemon server.js",
     "dev:full": "concurrently \"npm run dev\" \"npm start\""
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
+ "eslintConfig": {
+  "extends": [
+    "react-app",
+    "react-app/jest"
+  ],
+  "rules": {
+    "no-unused-vars": ["warn"]
+  }
+},
+  
   "browserslist": {
     "production": [
       ">0.2%",
