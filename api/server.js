@@ -25,9 +25,9 @@ app.use(
 const secretKey = "1234567890987654321";
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: "dpdx6ezoq",
+    api_key: "547468737787187",
+  api_secret: "QXshrdOzRvOZN_gDTT5lLui--iQ",
 });
 
 // Middleware
