@@ -217,8 +217,7 @@ app.post("/logout", async (req, res) => {
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   const { token } = req.cookies;
   console.log("Request Body:", req.body); // Log the body (title, summary, content)
-console.log("Uploaded File Info:", req.file); // Log the file object
-
+  console.log("Uploaded File Info:", req.file); // Log the file object
 
   if (!token) {
     console.log("Entered !token");
@@ -226,9 +225,7 @@ console.log("Uploaded File Info:", req.file); // Log the file object
   }
 
   jwt.verify(token, secretKey, {}, async (error, info) => {
-
     console.log("Entered jwt verification");
-    
     
     if (error) {
       console.log("Entered Error block 1 in JWT verification block");
@@ -243,45 +240,43 @@ console.log("Uploaded File Info:", req.file); // Log the file object
 
     const { title, summary, content } = req.body;
 
-     try {
+    try {
       console.log("Entered Try Block In JWT verification");
-      // Upload image to Cloudinary
-      const uploadResult = await cloudinary.uploader.upload_stream({
-        folder: "postImages",
-      }, async (error, result) => {
-        if (error) {
-          console.log("Cloudinary upload error:", error);
-          return res.status(500).json({ message: "Error uploading image" });
-        }
 
-        // Create the post with the Cloudinary URL
-        const postDoc = await Post.create({
-          title,
-          summary,
-          content,
-          cover: result.secure_url,
-          author: info.username,
-        });
+      // Wrap Cloudinary upload in a promise for cleaner async handling
+      const uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: "postImages" },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        ).end(file.buffer);
+      });
 
-        console.log("Post Created On Cloudinary: ", postDoc);
-        res.status(200).json(postDoc);
-      }).end(file.buffer);
+      // Create the post with the Cloudinary URL
+      const postDoc = await Post.create({
+        title,
+        summary,
+        content,
+        cover: uploadResult.secure_url,
+        author: info.username,
+      });
 
-    }
-     catch (err) {
+      console.log("Post Created On Cloudinary: ", postDoc);
+      res.status(200).json(postDoc);
+
+    } catch (err) {
       console.log("Faced Error. Entered Catch Block in main try-catch");
-
       console.log("Error creating post:", err);
-
-      // Clean up the temp file in case of an error
-      if (file && fs.existsSync(file.path)) {
-        fs.unlinkSync(file.path);
-      }
-
       res.status(500).json({ message: "Error creating post" });
     }
   });
 });
+
 
 // ! To Get All Posts to display in homescreen
 app.get("/posts", async (req, res) => {
