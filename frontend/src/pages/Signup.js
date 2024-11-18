@@ -109,7 +109,7 @@ function SignUp() {
 
     // Send data to the server
     try {
-      const response = await axios.post("/register", formData);
+      const response = await axios.post("https://blogapp-prod-frontend.vercel.app/register", formData);
       toast.success("Registration successful!");
 
       // Success handling
