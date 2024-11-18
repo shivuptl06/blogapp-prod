@@ -67,11 +67,13 @@ function SearchResults() {
   async function handleFollow() {
     // alert("Reached Handle Follow in Search Results.")
     console.log("Data Retrieved in SR: ", profileData.username); //✅
+    console.log("Entered handle FOllow");
     //alert(`Profile.Username: ${profileData.username}`);
     const response = await axios.post("/follow", {
       currentUsername: username,
       userToFollow: profileData.username,
     });
+    console.log("Response Receieved in handleFollow: ", response.data);
   }
 
   async function handleUnfollow() {
