@@ -119,7 +119,7 @@ function Home() {
           />
         ))
       ) : (
-        <p>No posts available</p>
+        <p>No posts available. Follow someone to see their posts. </p>
       )}
 
       {isModalOpen && (
