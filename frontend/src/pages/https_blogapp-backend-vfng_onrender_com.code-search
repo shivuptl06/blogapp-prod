@@ -1,99 +1,99 @@
-# Query: https://blogapp-backend-vfng.onrender.com
+# Query: https://blogapp-prod-production.up.railway.app.com
 # ContextLines: 1
 
 21 results - 11 files
 
 frontend/package.json:
   75    },
-  76:   "proxy": "https://blogapp-backend-vfng.onrender.com",
+  76:   "proxy": "https://blogapp-prod-production.up.railway.app.com",
   77    "resolutions": {
 
 frontend/src/components/Navbar.js:
   22        try {
-  23:         const res = await axios.get("https://blogapp-backend-vfng.onrender.com/profile", {
+  23:         const res = await axios.get("https://blogapp-prod-production.up.railway.app.com/profile", {
   24            withCredentials: true,
 
   51        .post(
-  52:         "https://blogapp-backend-vfng.onrender.com/logout",
+  52:         "https://blogapp-prod-production.up.railway.app.com/logout",
   53          {},
 
 frontend/src/components/OnEdit.js:
   4      try {
-  5:       const response = await axios.post("https://blogapp-backend-vfng.onrender.com/edit", {
+  5:       const response = await axios.post("https://blogapp-prod-production.up.railway.app.com/edit", {
   6          id: postId,
 
 frontend/src/components/ProfileDisplay.js:
   43        await axios.post(
-  44:         "https://blogapp-backend-vfng.onrender.com/delete",
+  44:         "https://blogapp-prod-production.up.railway.app.com/delete",
   45          { id: blogId },
 
   56        .post(
-  57:         "https://blogapp-backend-vfng.onrender.com/edit",
+  57:         "https://blogapp-prod-production.up.railway.app.com/edit",
   58          {
 
 frontend/src/context/UserContext.js:
   33        try {
-  34:         const response = await axios.get("https://blogapp-backend-vfng.onrender.com/profile", {
+  34:         const response = await axios.get("https://blogapp-prod-production.up.railway.app.com/profile", {
   35            withCredentials: true,
 
   71      try {
-  72:       const response = await axios.get("https://blogapp-backend-vfng.onrender.com/posts");
+  72:       const response = await axios.get("https://blogapp-prod-production.up.railway.app.com/posts");
   73        // console.log("Fetched posts from backend:", response.data);
 
 frontend/src/pages/AllData.js:
   10        try {
-  11:         const response = await axios.get("https://blogapp-backend-vfng.onrender.com/alldata", {
+  11:         const response = await axios.get("https://blogapp-prod-production.up.railway.app.com/alldata", {
   12            headers: {
 
 frontend/src/pages/CreatePost.js:
   78      try {
-  79:       const response = await axios.post("https://blogapp-backend-vfng.onrender.com/post", data, {
+  79:       const response = await axios.post("https://blogapp-prod-production.up.railway.app.com/post", data, {
   80          withCredentials: true,
 
 frontend/src/pages/Home.js:
   29        try {
-  30:         const response = await axios.post("https://blogapp-backend-vfng.onrender.com/getPosts", {
+  30:         const response = await axios.post("https://blogapp-prod-production.up.railway.app.com/getPosts", {
   31            username: username,
 
   51      try {
-  52:       const response = await axios.post("https://blogapp-backend-vfng.onrender.com/edit", {
+  52:       const response = await axios.post("https://blogapp-prod-production.up.railway.app.com/edit", {
   53          id: postId,
 
   83      try {
-  84:       const response = await axios.post("https://blogapp-backend-vfng.onrender.com/delete", {
+  84:       const response = await axios.post("https://blogapp-prod-production.up.railway.app.com/delete", {
   85          id: postToDelete,
 
 frontend/src/pages/Login.js:
   25        const response = await axios.post(
-  26:         "https://blogapp-backend-vfng.onrender.com/login",
+  26:         "https://blogapp-prod-production.up.railway.app.com/login",
   27          { username, password },
 
 frontend/src/pages/Profile.js:
    19        try {
-   20:         const response = await axios.get("https://blogapp-backend-vfng.onrender.com/profile", {
+   20:         const response = await axios.get("https://blogapp-prod-production.up.railway.app.com/profile", {
    21            withCredentials: true,
 
    53          const response = await axios.get(
-   54:           "https://blogapp-backend-vfng.onrender.com/profile/blogs",
+   54:           "https://blogapp-prod-production.up.railway.app.com/profile/blogs",
    55            {
 
    79        // Send the unfollow request
-   80:       const response = await axios.post("https://blogapp-backend-vfng.onrender.com/unfollow", {
+   80:       const response = await axios.post("https://blogapp-prod-production.up.railway.app.com/unfollow", {
    81          currentUsername: username,
 
    97    const removeFollower = async (followerToRemove) => {
-   98:     await axios.post("https://blogapp-backend-vfng.onrender.com/removefollower", {
+   98:     await axios.post("https://blogapp-prod-production.up.railway.app.com/removefollower", {
    99        currentUsername: username,
 
   111        await axios.post(
-  112:         "https://blogapp-backend-vfng.onrender.com/delete",
+  112:         "https://blogapp-prod-production.up.railway.app.com/delete",
   113          { id: blogId },
 
   128        .post(
-  129:         "https://blogapp-backend-vfng.onrender.com/edit",
+  129:         "https://blogapp-prod-production.up.railway.app.com/edit",
   130          {
 
 frontend/src/pages/SearchResults.js:
   38      try {
-  39:       const response = await axios.post("https://blogapp-backend-vfng.onrender.com/search/users", {
+  39:       const response = await axios.post("https://blogapp-prod-production.up.railway.app.com/search/users", {
   40          query: searchParams.toLocaleLowerCase(),

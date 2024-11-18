@@ -27,9 +27,12 @@ function Home() {
       if (!username) return;
 
       try {
-        const response = await axios.post("https://blogapp-backend-vfng.onrender.com/getPosts", {
-          username: username,
-        });
+        const response = await axios.post(
+          "https://blogapp-prod-production.up.railway.app.com/getPosts",
+          {
+            username: username,
+          }
+        );
         setFetchedPosts(response.data); // Correctly access the data
       } catch (error) {
         console.error("Error fetching user-specific posts:", error);
@@ -49,10 +52,13 @@ function Home() {
   // Handle edit post
   async function onEdit(postId, updatedPost) {
     try {
-      const response = await axios.post("https://blogapp-backend-vfng.onrender.com/edit", {
-        id: postId,
-        ...updatedPost,
-      });
+      const response = await axios.post(
+        "https://blogapp-prod-production.up.railway.app.com/edit",
+        {
+          id: postId,
+          ...updatedPost,
+        }
+      );
       console.log("Post updated successfully:", response.data);
       //fetchUserSpecificPosts(); // Refetch posts after updating
     } catch (error) {
@@ -81,9 +87,12 @@ function Home() {
     console.log("Attempting to delete post with ID:", postToDelete);
 
     try {
-      const response = await axios.post("https://blogapp-backend-vfng.onrender.com/delete", {
-        id: postToDelete,
-      });
+      const response = await axios.post(
+        "https://blogapp-prod-production.up.railway.app.com/delete",
+        {
+          id: postToDelete,
+        }
+      );
       console.log("Post deleted successfully:", response.data);
       //fetchUserSpecificPosts(); // Refetch posts after deleting
       setPostToDelete(null); // Reset postToDelete state after deletion

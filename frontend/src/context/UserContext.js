@@ -31,9 +31,12 @@ function UserContextProvider({ children }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get("https://blogapp-backend-vfng.onrender.com/profile", {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          "https://blogapp-prod-production.up.railway.app.com/profile",
+          {
+            withCredentials: true,
+          }
+        );
         if (response.data.username) {
           setUsername(response.data.username);
           setIsAuthenticated(true);
@@ -69,7 +72,9 @@ function UserContextProvider({ children }) {
   // Fetch posts
   const fetchPosts = async () => {
     try {
-      const response = await axios.get("https://blogapp-backend-vfng.onrender.com/posts");
+      const response = await axios.get(
+        "https://blogapp-prod-production.up.railway.app.com/posts"
+      );
       // console.log("Fetched posts from backend:", response.data);
       setPosts(response.data);
     } catch (error) {
@@ -108,7 +113,7 @@ function UserContextProvider({ children }) {
         setFollowers,
         following,
         setFollowing,
-        isOwnProfile
+        isOwnProfile,
       }}
     >
       {children}

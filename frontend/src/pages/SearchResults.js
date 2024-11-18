@@ -36,9 +36,12 @@ function SearchResults() {
   async function getSearchedUserDetails() {
     setLoading(true);
     try {
-      const response = await axios.post("https://blogapp-backend-vfng.onrender.com/search/users", {
-        query: searchParams.toLocaleLowerCase(),
-      });
+      const response = await axios.post(
+        "https://blogapp-prod-production.up.railway.app.com/search/users",
+        {
+          query: searchParams.toLocaleLowerCase(),
+        }
+      );
       //console.log("Response data:", response.data[1]);
       data = response.data[1];
       //console.log("Data: ",data);

@@ -76,10 +76,14 @@ function CreatePost() {
 
     // Here you can call your API to create a new post
     try {
-      const response = await axios.post("https://blogapp-backend-vfng.onrender.com/post", data, {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.post(
+        "https://blogapp-prod-production.up.railway.app.com/post",
+        data,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       console.log(response.data);
       // You can redirect to a new page or display a success message here
       if (response.status === 200) {

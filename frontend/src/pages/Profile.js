@@ -17,9 +17,12 @@ function Profile() {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await axios.get("https://blogapp-backend-vfng.onrender.com/profile", {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          "https://blogapp-prod-production.up.railway.app.com/profile",
+          {
+            withCredentials: true,
+          }
+        );
         console.log(response.data);
         setProfileData(response.data);
       } catch (error) {
@@ -51,7 +54,7 @@ function Profile() {
     const fetchBlogs = async () => {
       try {
         const response = await axios.get(
-          "https://blogapp-backend-vfng.onrender.com/profile/blogs",
+          "https://blogapp-prod-production.up.railway.app.com/profile/blogs",
           {
             withCredentials: true,
           }
@@ -77,10 +80,13 @@ function Profile() {
   const handleUnfollow = async (userToUnfollow) => {
     try {
       // Send the unfollow request
-      const response = await axios.post("https://blogapp-backend-vfng.onrender.com/unfollow", {
-        currentUsername: username,
-        userToUnfollow: userToUnfollow,
-      });
+      const response = await axios.post(
+        "https://blogapp-prod-production.up.railway.app.com/unfollow",
+        {
+          currentUsername: username,
+          userToUnfollow: userToUnfollow,
+        }
+      );
 
       // Check if the response was successful
       if (response.data.success) {
@@ -95,10 +101,13 @@ function Profile() {
   };
 
   const removeFollower = async (followerToRemove) => {
-    await axios.post("https://blogapp-backend-vfng.onrender.com/removefollower", {
-      currentUsername: username,
-      followerToRemove: followerToRemove,
-    });
+    await axios.post(
+      "https://blogapp-prod-production.up.railway.app.com/removefollower",
+      {
+        currentUsername: username,
+        followerToRemove: followerToRemove,
+      }
+    );
 
     setFollowersList((prevList) =>
       prevList.filter((user) => user !== followerToRemove)
@@ -109,7 +118,7 @@ function Profile() {
     try {
       // Send DELETE request to the /delete endpoint
       await axios.post(
-        "https://blogapp-backend-vfng.onrender.com/delete",
+        "https://blogapp-prod-production.up.railway.app.com/delete",
         { id: blogId },
         {
           withCredentials: true,
@@ -126,7 +135,7 @@ function Profile() {
     // Send POST request to the /edit endpoint to update the blog
     axios
       .post(
-        "https://blogapp-backend-vfng.onrender.com/edit",
+        "https://blogapp-prod-production.up.railway.app.com/edit",
         {
           id: blogId,
           title: updatedPost.title,

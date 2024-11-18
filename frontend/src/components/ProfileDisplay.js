@@ -41,7 +41,7 @@ function ProfileDisplay({
   const handleDeleteBlog = async (blogId) => {
     try {
       await axios.post(
-        "https://blogapp-backend-vfng.onrender.com/delete",
+        "https://blogapp-prod-production.up.railway.app.com/delete",
         { id: blogId },
         { withCredentials: true }
       );
@@ -54,7 +54,7 @@ function ProfileDisplay({
   const handleEditBlog = (blogId, updatedPost) => {
     axios
       .post(
-        "https://blogapp-backend-vfng.onrender.com/edit",
+        "https://blogapp-prod-production.up.railway.app.com/edit",
         {
           id: blogId,
           title: updatedPost.title,
@@ -84,29 +84,25 @@ function ProfileDisplay({
     //console.log("currentFollowers (admin's followers):", currentFollowers);
     //console.log("logged-in user (username):", username);
     //console.log("User:", user);
-    
+
     // Check if the logged-in user (username, e.g., "shivam") is in the currentFollowers list (admin's followers)
     const isUserFollowing = currentFollowers.includes(username);
-    
+
     console.log("Is User Following (shivam following admin):", isUserFollowing);
     setIsFollowing(isUserFollowing);
   };
 
-  function handleUnfollowLogic(){
+  function handleUnfollowLogic() {
     //alert("Inside handleUnfollow. YET TO BE REDIRECTED");
     setFollowingList(
-      followingList.filter((following)=>{
-        return following!==username
-      }));
-      console.log(followingList);
-      setIsFollowing(false);
-      handleUnfollow(); // Call the parent function
+      followingList.filter((following) => {
+        return following !== username;
+      })
+    );
+    console.log(followingList);
+    setIsFollowing(false);
+    handleUnfollow(); // Call the parent function
   }
-
-
-
-
-  
 
   //console.log(cover);
   return (
@@ -140,12 +136,14 @@ function ProfileDisplay({
                 Follow
               </button>
             ) : (
-              <><button
-              className="p-1 rounded-lg bg-red-500 hover:bg-red-600"
-              onClick={handleUnfollowLogic}
-            >
-              Unfollow
-            </button></>
+              <>
+                <button
+                  className="p-1 rounded-lg bg-red-500 hover:bg-red-600"
+                  onClick={handleUnfollowLogic}
+                >
+                  Unfollow
+                </button>
+              </>
             )}
           </div>
         </div>

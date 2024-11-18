@@ -8,13 +8,16 @@ function AllData() {
     // Fetch data when the component mounts
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://blogapp-backend-vfng.onrender.com/alldata", {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          "https://blogapp-prod-production.up.railway.app.com/alldata",
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
         setData(response.data); // Set the data received from the server
-        console.log(response.data)
+        console.log(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
