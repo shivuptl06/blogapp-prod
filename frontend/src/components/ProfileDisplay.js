@@ -41,7 +41,7 @@ function ProfileDisplay({
   const handleDeleteBlog = async (blogId) => {
     try {
       await axios.post(
-        "https://blogapp-prod-production.up.railway.app.com/delete",
+        "https://blogapp-prod-production.up.railway.app/delete",
         { id: blogId },
         { withCredentials: true }
       );
@@ -54,7 +54,7 @@ function ProfileDisplay({
   const handleEditBlog = (blogId, updatedPost) => {
     axios
       .post(
-        "https://blogapp-prod-production.up.railway.app.com/edit",
+        "https://blogapp-prod-production.up.railway.app/edit",
         {
           id: blogId,
           title: updatedPost.title,

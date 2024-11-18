@@ -37,7 +37,7 @@ function SearchResults() {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://blogapp-prod-production.up.railway.app.com/search/users",
+        "https://blogapp-prod-production.up.railway.app/search/users",
         {
           query: searchParams.toLocaleLowerCase(),
         }

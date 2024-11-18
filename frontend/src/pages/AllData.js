@@ -9,7 +9,7 @@ function AllData() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://blogapp-prod-production.up.railway.app.com/alldata",
+          "https://blogapp-prod-production.up.railway.app/alldata",
           {
             headers: {
               "Content-Type": "application/json",

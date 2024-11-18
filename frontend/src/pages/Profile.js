@@ -18,7 +18,7 @@ function Profile() {
     const fetchProfileData = async () => {
       try {
         const response = await axios.get(
-          "https://blogapp-prod-production.up.railway.app.com/profile",
+          "https://blogapp-prod-production.up.railway.app/profile",
           {
             withCredentials: true,
           }
@@ -54,7 +54,7 @@ function Profile() {
     const fetchBlogs = async () => {
       try {
         const response = await axios.get(
-          "https://blogapp-prod-production.up.railway.app.com/profile/blogs",
+          "https://blogapp-prod-production.up.railway.app/profile/blogs",
           {
             withCredentials: true,
           }
@@ -81,7 +81,7 @@ function Profile() {
     try {
       // Send the unfollow request
       const response = await axios.post(
-        "https://blogapp-prod-production.up.railway.app.com/unfollow",
+        "https://blogapp-prod-production.up.railway.app/unfollow",
         {
           currentUsername: username,
           userToUnfollow: userToUnfollow,
@@ -102,7 +102,7 @@ function Profile() {
 
   const removeFollower = async (followerToRemove) => {
     await axios.post(
-      "https://blogapp-prod-production.up.railway.app.com/removefollower",
+      "https://blogapp-prod-production.up.railway.app/removefollower",
       {
         currentUsername: username,
         followerToRemove: followerToRemove,
@@ -118,7 +118,7 @@ function Profile() {
     try {
       // Send DELETE request to the /delete endpoint
       await axios.post(
-        "https://blogapp-prod-production.up.railway.app.com/delete",
+        "https://blogapp-prod-production.up.railway.app/delete",
         { id: blogId },
         {
           withCredentials: true,
@@ -135,7 +135,7 @@ function Profile() {
     // Send POST request to the /edit endpoint to update the blog
     axios
       .post(
-        "https://blogapp-prod-production.up.railway.app.com/edit",
+        "https://blogapp-prod-production.up.railway.app/edit",
         {
           id: blogId,
           title: updatedPost.title,

@@ -32,7 +32,7 @@ function UserContextProvider({ children }) {
     const checkAuth = async () => {
       try {
         const response = await axios.get(
-          "https://blogapp-prod-production.up.railway.app.com/profile",
+          "https://blogapp-prod-production.up.railway.app/profile",
           {
             withCredentials: true,
           }
@@ -73,7 +73,7 @@ function UserContextProvider({ children }) {
   const fetchPosts = async () => {
     try {
       const response = await axios.get(
-        "https://blogapp-prod-production.up.railway.app.com/posts"
+        "https://blogapp-prod-production.up.railway.app/posts"
       );
       // console.log("Fetched posts from backend:", response.data);
       setPosts(response.data);

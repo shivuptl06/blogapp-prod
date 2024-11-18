@@ -28,7 +28,7 @@ function Home() {
 
       try {
         const response = await axios.post(
-          "https://blogapp-prod-production.up.railway.app.com/getPosts",
+          "https://blogapp-prod-production.up.railway.app/getPosts",
           {
             username: username,
           }
@@ -53,7 +53,7 @@ function Home() {
   async function onEdit(postId, updatedPost) {
     try {
       const response = await axios.post(
-        "https://blogapp-prod-production.up.railway.app.com/edit",
+        "https://blogapp-prod-production.up.railway.app/edit",
         {
           id: postId,
           ...updatedPost,
@@ -88,7 +88,7 @@ function Home() {
 
     try {
       const response = await axios.post(
-        "https://blogapp-prod-production.up.railway.app.com/delete",
+        "https://blogapp-prod-production.up.railway.app/delete",
         {
           id: postToDelete,
         }
