@@ -162,26 +162,33 @@ app.post("/login", async (req, res) => {
 // ! For profile Page
 app.get("/profile", async (req, res) => {
   const { token } = req.cookies;
-  // if (!token) {
-  //   res.status(401).json("Unauthorized get/profile");
-  //   console.log("No Token Found");
-  // } else {
-    jwt.verify(token, secretKey, {}, async (error, info) => {
-      // console.log("Token Verification Started");
-      if (error) {
-        console.log("Error in Profile retrival at 120: ", error);
-        console.log("Token Verification Error");
-        res.status(401).json("Unauthorized get/profile");
-      } else {
-        // console.log("Token: ", token);
-        //console.log("Sent Data: ", info);
-        const userProfile = await User.findOne({ username: info.username });
-        // console.log("User Profile Fetched: ", userProfile);
-        res.json(userProfile);
+
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized, no token provided" });
+  }
+
+  jwt.verify(token, secretKey, {}, async (error, info) => {
+    if (error) {
+      console.error("Error in Profile retrieval at 120: ", error);
+      return res.status(401).json({ message: "Unauthorized, token invalid or expired" });
+    }
+
+    try {
+      const userProfile = await User.findOne({ username: info.username });
+
+      if (!userProfile) {
+        return res.status(404).json({ message: "User profile not found" });
       }
-    });
-  // }
+
+      res.json(userProfile);
+    } catch (err) {
+      console.error("Error fetching user profile:", err);
+      res.status(500).json({ message: "Internal Server Error in get profile" });
+    }
+  });
 });
+
+
 
 // ! TO GET BLOGS POSTED BY A USER
 app.get("/profile/blogs", async (req, res) => {
