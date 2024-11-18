@@ -14,17 +14,21 @@ function Profile() {
     following: [],
   });
 
+  const [blogs, setBlogs] = useState([]);
+  const [followingList, setFollowingList] = useState([]);
+  const [followersList, setFollowersList] = useState([]);
+
+  // Fetch Profile Data
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
         const response = await axios.get(
           "https://blogapp-prod-production.up.railway.app/profile",
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
-        console.log(response.data);
         setProfileData(response.data);
+        setFollowingList(response.data.following);
+        setFollowersList(response.data.followers);
       } catch (error) {
         console.error("Error fetching profile data:", error);
       }
@@ -33,64 +37,40 @@ function Profile() {
     fetchProfileData();
   }, []);
 
-  const { username, name, email, cover, followers, following } = profileData;
-  const [followingList, setFollowingList] = useState([]);
-  const [followersList, setFollowersList] = useState([]);
-  useEffect(() => {
-    if (Array.isArray(following)) {
-      setFollowingList(following);
-    }
-  }, [following]);
-
-  useEffect(() => {
-    if (Array.isArray(followers)) {
-      setFollowersList(followers);
-    }
-  }, [followers]);
-
-  // Retrieving Blogs of the logged-in user
-  const [blogs, setBlogs] = useState([]);
+  // Fetch Blogs Data
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
         const response = await axios.get(
           "https://blogapp-prod-production.up.railway.app/profile/blogs",
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
-
-        // Ensure createdAt is properly parsed and sort blogs by newest first
         const sortedBlogs = response.data
           .map((blog) => ({
             ...blog,
-            createdAt: new Date(blog.createdAt), // Convert createdAt to Date object
+            createdAt: new Date(blog.createdAt), // Ensure correct Date object
           }))
-          .sort((a, b) => b.createdAt - a.createdAt); // Sort by createdAt, newest first
-
+          .sort((a, b) => b.createdAt - a.createdAt); // Sort by newest first
         setBlogs(sortedBlogs);
-        console.log("Blog Data Retrieved: ", sortedBlogs);
       } catch (error) {
         console.error("Error fetching blogs:", error);
       }
     };
+
     fetchBlogs();
   }, []);
 
+  // Unfollow handler
   const handleUnfollow = async (userToUnfollow) => {
     try {
-      // Send the unfollow request
       const response = await axios.post(
         "https://blogapp-prod-production.up.railway.app/unfollow",
         {
-          currentUsername: username,
+          currentUsername: profileData.username,
           userToUnfollow: userToUnfollow,
         }
       );
-
-      // Check if the response was successful
       if (response.data.success) {
-        // Update the following list with the new data returned from the backend
         setFollowingList(response.data.updatedFollowingList);
       } else {
         console.error("Error unfollowing user:", response.data.message);
@@ -100,39 +80,40 @@ function Profile() {
     }
   };
 
+  // Remove follower handler
   const removeFollower = async (followerToRemove) => {
-    await axios.post(
-      "https://blogapp-prod-production.up.railway.app/removefollower",
-      {
-        currentUsername: username,
-        followerToRemove: followerToRemove,
-      }
-    );
-
-    setFollowersList((prevList) =>
-      prevList.filter((user) => user !== followerToRemove)
-    );
+    try {
+      const response = await axios.post(
+        "https://blogapp-prod-production.up.railway.app/removefollower",
+        {
+          currentUsername: profileData.username,
+          followerToRemove: followerToRemove,
+        }
+      );
+      setFollowersList((prevList) =>
+        prevList.filter((user) => user !== followerToRemove)
+      );
+    } catch (error) {
+      console.error("Error removing follower:", error);
+    }
   };
 
+  // Delete blog handler
   const handleDeleteBlog = async (blogId) => {
     try {
-      // Send DELETE request to the /delete endpoint
       await axios.post(
         "https://blogapp-prod-production.up.railway.app/delete",
         { id: blogId },
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
-      // Remove the blog from the state
-      setBlogs(blogs.filter((blog) => blog._id !== blogId));
+      setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog._id !== blogId));
     } catch (error) {
       console.error("Error deleting blog:", error);
     }
   };
 
+  // Edit blog handler
   const handleEditBlog = (blogId, updatedPost) => {
-    // Send POST request to the /edit endpoint to update the blog
     axios
       .post(
         "https://blogapp-prod-production.up.railway.app/edit",
@@ -144,10 +125,9 @@ function Profile() {
         },
         { withCredentials: true }
       )
-      .then((response) => {
-        // Update the blog list in the state after editing
-        setBlogs(
-          blogs.map((blog) =>
+      .then(() => {
+        setBlogs((prevBlogs) =>
+          prevBlogs.map((blog) =>
             blog._id === blogId ? { ...blog, ...updatedPost } : blog
           )
         );
@@ -160,9 +140,9 @@ function Profile() {
       {/* Profile Section */}
       <div className="flex flex-col items-center space-y-4">
         <div className="w-40 h-40 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-          {cover ? (
+          {profileData.cover ? (
             <img
-              src={cover}
+              src={profileData.cover}
               alt="Profile"
               className="w-full h-full object-contain"
             />
@@ -174,9 +154,9 @@ function Profile() {
           )}
         </div>
         <div className="flex flex-col items-center">
-          <p className="text-center text-xl font-semibold">{name}</p>
-          <p className="text-gray-500">@{username}</p>
-          <p className="text-gray-500">{email}</p>
+          <p className="text-center text-xl font-semibold">{profileData.name}</p>
+          <p className="text-gray-500">@{profileData.username}</p>
+          <p className="text-gray-500">{profileData.email}</p>
         </div>
       </div>
 
