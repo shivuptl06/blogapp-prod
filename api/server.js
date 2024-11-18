@@ -22,7 +22,7 @@ app.use(
   })
 );
 
-const secretKey = process.env.SECRET_KEY;
+const secretKey = "1234567890987654321";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
