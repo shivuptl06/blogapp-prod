@@ -428,45 +428,38 @@ app.post("/getPosts", async (req, res) => {
 // ! Follows a user when follow button is clicked [Update Followers and Following]
 app.post("/follow", async (req, res) => {
   const { currentUsername, userToFollow } = req.body;
-  // console.log(currentUsername); ✅
-  // console.log(userToFollow);✅
-  const findUser = User.findOne({ username: currentUsername });
-  const findUserToFollow = User.findOne({ username: userToFollow });
-  if (!findUser) {
-    console.log("User Not Found 404");
-    return res.status(404).json("User Not Found");
-  } else if (!findUserToFollow) {
-    console.log("User Not Found 404");
-    return res.status(404).json("User Not Found");
-  } else {
-    try {
-      const updatedUserProfile = await User.findOneAndUpdate(
-        { username: currentUsername },
-        {
-          $addToSet: { following: userToFollow },
-        },
-        { new: true }
-      );
-      console.log("New Following", updatedUserProfile);
-    } catch (error) {
-      console.error("Error updating user:", error);
-      res.status(500).json("Internal Server Error");
+
+  try {
+    // Add userToFollow to currentUsername's following list
+    const updatedUserProfile = await User.findOneAndUpdate(
+      { username: currentUsername },
+      { $addToSet: { following: userToFollow } },
+      { new: true }
+    );
+    if (!updatedUserProfile) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
-    // Update The Follower List
-    try {
-      const updatedUserProfileForFollower = await User.findOneAndUpdate(
-        { username: userToFollow },
-        {
-          $addToSet: { followers: currentUsername },
-        },
-        { new: true }
-      );
-      console.log("New Follower", updatedUserProfileForFollower);
-    } catch (error) {
-      console.error("Error updating user:", error);
-      res.status(500).json("Internal Server Error");
+
+    // Add currentUsername to userToFollow's followers list
+    const updatedUserProfileForFollower = await User.findOneAndUpdate(
+      { username: userToFollow },
+      { $addToSet: { followers: currentUsername } },
+      { new: true }
+    );
+    if (!updatedUserProfileForFollower) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User to follow not found" });
     }
-    //return res.status(200).json(updatedUserProfile);
+
+    res.status(200).json({
+      success: true,
+      updatedFollowingList: updatedUserProfile.following,
+      updatedFollowersList: updatedUserProfileForFollower.followers,
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error in following a user" });
   }
 });
 
