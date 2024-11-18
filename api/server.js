@@ -216,6 +216,9 @@ app.post("/logout", async (req, res) => {
 // ! For create-new-post Page
 app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   const { token } = req.cookies;
+  console.log("Request Body:", req.body); // Log the body (title, summary, content)
+console.log("Uploaded File Info:", req.file); // Log the file object
+
 
   if (!token) {
     console.log("Entered !token");
@@ -225,6 +228,7 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   jwt.verify(token, secretKey, {}, async (error, info) => {
 
     console.log("Entered jwt verification");
+    
     
     if (error) {
       console.log("Entered Error block 1 in JWT verification block");
