@@ -243,28 +243,32 @@ console.log("Uploaded File Info:", req.file); // Log the file object
 
     const { title, summary, content } = req.body;
 
-    try {
+     try {
       console.log("Entered Try Block In JWT verification");
       // Upload image to Cloudinary
-      const uploadResult = await cloudinary.uploader.upload(file.path, {
-        folder: "postImages", // Organize uploads into a "postImages" folder
-      });
+      const uploadResult = await cloudinary.uploader.upload_stream({
+        folder: "postImages",
+      }, async (error, result) => {
+        if (error) {
+          console.log("Cloudinary upload error:", error);
+          return res.status(500).json({ message: "Error uploading image" });
+        }
 
-      // Clean up the temporary file
-      fs.unlinkSync(file.path);
+        // Create the post with the Cloudinary URL
+        const postDoc = await Post.create({
+          title,
+          summary,
+          content,
+          cover: result.secure_url,
+          author: info.username,
+        });
 
-      // Create the post with the Cloudinary URL
-      const postDoc = await Post.create({
-        title,
-        summary,
-        content,
-        cover: uploadResult.secure_url, // Store the Cloudinary URL for the cover
-        author: info.username,
-      });
+        console.log("Post Created On Cloudinary: ", postDoc);
+        res.status(200).json(postDoc);
+      }).end(file.buffer);
 
-      console.log("Post Created On Cloudinary: ", postDoc);
-      res.status(200).json(postDoc);
-    } catch (err) {
+    }
+     catch (err) {
       console.log("Faced Error. Entered Catch Block in main try-catch");
 
       console.log("Error creating post:", err);
