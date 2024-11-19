@@ -548,6 +548,13 @@ app.post("/removefollower", async (req, res) => {
 // ! All the extra Code is below this // // // // /////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Catch unhandled promise rejections
+
+app.get('/health', (req, res) => {
+    res.status(200).send('Service is healthy');
+});
+
+
+
 process.on("unhandledRejection", (reason, promise) => {
   console.log("Unhandled Rejection:", reason);
   // Optionally, shut down the server or handle specific cleanup
