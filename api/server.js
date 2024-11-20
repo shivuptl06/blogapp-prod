@@ -160,7 +160,7 @@ app.post("/login", async (req, res) => {
 });
 
 // ! For profile Page
-app.get("/profile", async (req, res) => {
+app.post("/profile", async (req, res) => {
   const { token } = req.cookies;
 
   if (!token) {
