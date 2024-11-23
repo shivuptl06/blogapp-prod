@@ -17,14 +17,13 @@ require("dotenv").config();
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000", // Local development frontend
-      "https://blogapp-frontend-production.up.railway.app", // Deployed frontend
-      "https://blogapp-prodfrontend.vercel.app",
-    ],
-    credentials: true, // Allow cookies to be sent with requests
+    origin: (origin, callback) => {
+      callback(null, true); // Allow all origins
+    },
+    credentials: true, // Allow cookies and credentials
   })
 );
+
 
 
 const secretKey = process.env.SECRET_KEY;
